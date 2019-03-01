@@ -1,0 +1,12 @@
+{ "columns":10,
+ "image":"Avatar_Equipment.png",
+ "imageheight":312,
+ "imagewidth":160,
+ "margin":0,
+ "name":"Avatar_Equipment",
+ "spacing":0,
+ "tilecount":130,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}

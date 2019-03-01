@@ -1,0 +1,10 @@
+| name           | char | fg         | mixins       | tileset | tileid |
+|----------------+------+------------+--------------+---------+--------|
+| meat           | %    | brown      | genericMixin | Items   |    236 |
+| Potion         | %    | darkGreen  | genericMixin | Items   |     60 |
+| potion again   | !    | red        | genericMixin | Items   |     61 |
+| another potion | !    | orange     |              | Items   |     62 |
+| shoe           | ]    | yellow     |              | Items   |    209 |
+| shirt          | ]    | lightBlue  |              | Items   |    196 |
+| diet coke      | !    | blue       |              | Items   |     64 |
+| ryan's crocs   | ]    | lightBrown |              | Items   |    212 |

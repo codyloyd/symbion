@@ -1,0 +1,12 @@
+{ "columns":19,
+ "image":"Monsters.png",
+ "imageheight":624,
+ "imagewidth":304,
+ "margin":0,
+ "name":"Monsters",
+ "spacing":0,
+ "tilecount":494,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}

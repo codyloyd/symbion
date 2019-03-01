@@ -1,0 +1,12 @@
+{ "columns":7,
+ "image":"Avatar.png",
+ "imageheight":48,
+ "imagewidth":112,
+ "margin":0,
+ "name":"Avatar",
+ "spacing":0,
+ "tilecount":14,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}

@@ -1,0 +1,12 @@
+{ "columns":20,
+ "image":"Terrain_Objects.png",
+ "imageheight":288,
+ "imagewidth":320,
+ "margin":0,
+ "name":"Terrain_Objects",
+ "spacing":0,
+ "tilecount":240,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}

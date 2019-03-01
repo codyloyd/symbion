@@ -1,0 +1,9 @@
+
+| name    | char | tileset  | tileid | fg         | mixins                                           | maxHp | speed | sightRadius |
+|---------+------+----------+--------+------------+--------------------------------------------------+-------+-------+-------------|
+| fungus  | F    | Monsters |    396 | green      | FungusActor,Destructible                         |    10 |   250 |             |
+| monster | M    | Monsters |    273 | orange     | Movable,Attacker,MonsterActor,Destructible,Sight |    10 |   900 |           8 |
+| bat     | b    | Monsters |     82 | blue       | Movable,Attacker,MonsterActor,Destructible,Sight |    10 |  1600 |          10 |
+| zombie  | z    | Monsters |    169 | lightGreen | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |   800 |           6 |
+| ghost   | z    | Monsters |    306 | lightBlue  | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |   800 |          14 |
+| spider  | z    | Monsters |     78 | lightBrown | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |  1800 |          14 |

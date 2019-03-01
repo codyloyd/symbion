@@ -1,0 +1,12 @@
+{ "columns":5,
+ "image":"FX_Projectiles.png",
+ "imageheight":144,
+ "imagewidth":80,
+ "margin":0,
+ "name":"FX_Projectiles",
+ "spacing":0,
+ "tilecount":30,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}
