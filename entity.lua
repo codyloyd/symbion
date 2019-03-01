@@ -15,6 +15,7 @@ Entity.new = function(opts)
   self.y = opts and opts.y or 0
   self.map = opts and opts.map
   self.speed = opts and opts.speed or 1000
+  self.speedModifier = 1
 
   -- mixin system
   self.attachedMixins = {}
@@ -46,7 +47,9 @@ Entity.new = function(opts)
     end
   end
 
-  function self:getSpeed() return self.speed end
+  function self:getSpeed() return
+      self.speed * self.speedModifier
+  end
 
   return self
 end
@@ -107,7 +110,7 @@ Entity.PlayerTemplate = {
   bg = Colors.black,
   maxHp = 40,
   attackValue = 10,
-  mixins = {"Movable","PlayerActor","Destructible","Attacker","MessageRecipient","InventoryHolder"}
+  mixins = {"Movable","PlayerActor","Destructible","Attacker","MessageRecipient","InventoryHolder","SymbionUser"}
 }
 
 Entity.FungusTemplate = {

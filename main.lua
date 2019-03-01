@@ -24,12 +24,10 @@ function love.load()
   tileheight = 24
 
   font = love.graphics.setNewFont('font/CP437.ttf', 16)
+  bigFont = love.graphics.newFont('font/CP437.ttf', 48)
   charWidth = love.graphics.getFont():getWidth('e')
   charHeight = love.graphics.getFont():getHeight('e')
 
-  scheduler=ROT.Scheduler.Speed:new()
-  engine=ROT.Engine:new(scheduler)
-  engine:start()
 
   switchScreen(startScreen)
 
@@ -49,10 +47,14 @@ function love.load()
   --GOOI stuff
   style = {
     font=font,
-    radius = 0,
-    innerRadius = 0,
-    showBorder = true,
-    bgColor = {0.208, 0.220, 0.222}
+    bgColor = Colors.black,
+    fgColor = Colors.white,
+    radius = 2, -- raw pixels
+    innerRadius = 2, -- raw pixels
+    showBorder = true, -- border for components
+    borderColor = component.colors.blue,
+    borderWidth = love.window.toPixels(2), -- in pixels
+    borderStyle = "smooth", -- or "smooth"
   }
   gooi.setStyle(style)
   gooi.desktopMode()

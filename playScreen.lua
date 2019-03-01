@@ -2,6 +2,7 @@ require('map')
 require('gameWorld')
 require('tile')
 require('entity')
+require('symbion')
 require('colors')
 local grid = require('lib/grid')
 
@@ -11,13 +12,23 @@ local subscreen
 player = nil
 
 screen.enter = function()
+  scheduler=ROT.Scheduler.Speed:new()
+  engine=ROT.Engine:new(scheduler)
+  engine:start()
+
   gameWorld = GameWorld.new()
   player = gameWorld.player
+
+  local newSym = Symbion.new(Symbion.PunchyTemplate)
+  player:addSymbion(newSym)
+  local xnewSym = Symbion.new(Symbion.SpeedyTemplate)
+  player:addSymbion(xnewSym)
 
   -- set up game UI elements
   uiElements = {}
   uiElements.healthBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
-  uiElements.magicBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
+  uiElements.symbionLabel = gooi.newLabel({text='Symbion'}):left():fg(Colors.white)
+  uiElements.symbionBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
 
   topLeft = gooi.newPanel({x=0,y=0,w = 300, h = 60, layout="grid 3x3"})
   topLeft
@@ -27,17 +38,33 @@ screen.enter = function()
   :add(
       gooi.newLabel({text='Health'}):left():fg(Colors.white),
       uiElements.healthBar,
-      gooi.newLabel({text='MAGIC'}):left():fg(Colors.white),
-      uiElements.magicBar
+      uiElements.symbionLabel,
+      uiElements.symbionBar
   ):setGroup('ui')
+  uiElements.symbionBar:setVisible(false)
+  uiElements.symbionLabel:setVisible(false)
 
   -- event for updating the UI
   updateUi = Luvent.newEvent()
   updateUi:addAction(
     function(uiElement, payload)
-      uiElements[uiElement].value = payload
+      if uiElements[uiElement] then
+        uiElements[uiElement].value = payload
+      end
       if uiElement == 'healthBar' and payload < .6 then
         uiElements[uiElement]:fg(Colors.red)
+      end
+      if uiElement == 'symbionGui' and payload == 'show' then
+        uiElements.symbionBar.value = player.attachedSymbion.life/player.attachedSymbion.maxLife
+        uiElements.symbionBar:setVisible(true)
+        uiElements.symbionLabel:setVisible(true)
+      end
+      if uiElement == 'symbionGui' and payload == 'hide' then
+        uiElements.symbionBar:setVisible(false)
+        uiElements.symbionLabel:setVisible(false)
+      end
+      if uiElement == 'symbionName' then
+        uiElements.symbionLabel:setText(payload)
       end
     end
   )
@@ -46,6 +73,11 @@ screen.enter = function()
 end
 
 screen.exit = function()
+  engine:lock()
+  uiElements = nil
+  topLeft = nil
+  gooi.components = {}
+  gameWorld = {}
 end
 
 screen.render = function()
@@ -146,11 +178,41 @@ screen.render = function()
   -- render player
   love.graphics.setColor(Colors.pureWhite)
   love.graphics.print('@', 4+(player.x-(topLeftX))*tilewidth, (player.y-(topLeftY))*tileheight, 0, 1.5)
-  love.graphics.setCanvas()
 
 
-  --render subscreen
+  -- render symbion buttons
+ for i,sym in ipairs(player.symbions) do
 
+   local life = sym.life/sym.maxLife
+   if player.attachedSymbion == sym then
+     love.graphics.setColor(sym.fg)
+     love.graphics.rectangle('fill',4, i*30,26,26)
+     love.graphics.setColor(Colors.white)
+     love.graphics.rectangle('line',4, i*30,25,26)
+     local image = tiles[sym.tileset].image
+     local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
+     love.graphics.setColor(Colors.black)
+     love.graphics.draw(image,quad,8,i*30)
+   else
+     love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+     love.graphics.rectangle('fill',5, i*30,25,25)
+     love.graphics.setColor(Colors.white)
+     love.graphics.rectangle('line',4, i*30,26,26)
+     local image = tiles[sym.tileset].image
+     local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
+     love.graphics.setColor(sym.fg)
+     love.graphics.draw(image,quad,8,i*30)
+   end
+
+   if life < .4 then
+     love.graphics.setColor(Colors.red)
+   else
+     love.graphics.setColor(Colors.white)
+   end
+   love.graphics.rectangle('fill',5,(i*30)+23,life*24,2)
+ end
+
+love.graphics.setCanvas()
 
   function getHealthColor(hp, maxHp)
     percentage = hp/maxHp
@@ -177,6 +239,7 @@ screen.render = function()
 
 end
 
+
 screen.keypressed = function(key)
   --render subscreen keypress highjacks keypress function
   if subscreen then
@@ -188,7 +251,18 @@ screen.keypressed = function(key)
     return
   end
 
-  if key=='q' then
+  if lume.any({'1','2','3'}, function(x) return key == x end) then
+
+    if not player.attachedSymbion then
+      if player.symbions[tonumber(key)]:apply(player) then
+        updateUi:trigger('symbionName', player.attachedSymbion.name)
+        updateUi:trigger('symbionGui', 'show')
+      end
+    else
+      local attached = lume.find(player.symbions, player.attachedSymbion)
+      player.symbions[attached]:remove(player)
+      updateUi:trigger('symbionGui', 'hide')
+    end
   end
 
   if key=='return' then 

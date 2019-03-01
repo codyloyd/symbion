@@ -62,12 +62,13 @@ local Attacker = {
 
 function Attacker:init(opts)
   self.attackValue = opts and opts.attackValue or 1
+  self.attackModifier = 1
 end
 
 function Attacker:attack(target)
   if target == self then return end
   if target:hasMixin('Destructible') then
-    attack, defense = self.attackValue, target.defenseValue
+    attack, defense = self.attackValue * self.attackModifier, target.defenseValue
     damage = math.random(1, math.max(0, attack - defense))
     sendMessage(self, string.format("You strike the %s for %d damage!", target.name, damage))
     sendMessage(target, string.format("The %s strikes you for %d damage!", self.name, damage))
@@ -132,7 +133,7 @@ end
 Mixins.Sight = Sight
 
 local InventoryHolder = {
-  name = 'InentoryHolder'
+  name = 'InventoryHolder'
 }
 
 function InventoryHolder:init(opts)
@@ -145,12 +146,37 @@ end
 
 Mixins.InventoryHolder = InventoryHolder
 
+local SymbionUser = {
+  name="SymbionUser"
+}
+
+function SymbionUser:init(opts)
+  self.symbionLimit = opts and opts.symbionLimit or 3
+  self.symbions = {}
+  self.attachedSymbion = nil
+end
+
+function SymbionUser:addSymbion(sym)
+  table.insert(self.symbions, sym)
+end
+
+function SymbionUser:updateSymbions()
+  lume.each(self.symbions, function(sym)
+    sym:update()
+  end)
+end
+
+Mixins.SymbionUser = SymbionUser
+
 -- Actors!!
 
 Mixins.PlayerActor = {
   name= 'PlayerActor',
   groupName= 'Actor',
   act= function(self)
+    if self:hasMixin('SymbionUser') then
+      self:updateSymbions()
+    end
     refresh()
     engine:lock()
     player:ageMessages()
