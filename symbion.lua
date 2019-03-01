@@ -43,6 +43,11 @@ Symbion.new = function(opts)
     end
   end
 
+  function self.kill()
+    self.dead = true;
+    lume.remove(player.symbions, self)
+  end
+
   return self
 end
 
@@ -66,12 +71,13 @@ function Mixins.Speedy:init()
 end
 
 function Mixins.Speedy:update()
-  print(self.name)
   if self.isAttached then
     self.life = self.life - 1
     updateUi:trigger('symbionBar', self.life/self.maxLife)
     if self.life <= 0 then
-      print('THIS GUY FREAKIN DIED LOSER')
+      player:receiveMessage('OH NO! YOU KILLED '..self.name)
+      player.attachedSymbion = nil
+      self.kill()
     end
   else
     self.life = math.min(self.life + 1, self.maxLife)
@@ -113,12 +119,11 @@ function Mixins.Punchy:init()
 end
 
 function Mixins.Punchy:update()
-  print(self.name)
   if self.isAttached then
     self.life = self.life - 1
     updateUi:trigger('symbionBar', self.life/self.maxLife)
     if self.life <= 0 then
-      print('THIS GUY FREAKIN DIED LOSER')
+      player:receiveMessage('OH NO! YOU KILLED '..self.name)
     end
   else
     self.life = math.min(self.life + 1, self.maxLife)

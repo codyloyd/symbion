@@ -41,6 +41,7 @@ function love.load()
   love.window.setMode(2*screenWidth*tilewidth,2*screenHeight*tileheight)
 
   mapCanvas = love.graphics.newCanvas()
+  messagesCanvas = love.graphics.newCanvas()
   uiCanvas = love.graphics.newCanvas()
   mapCanvas:setFilter('nearest', 'nearest')
   uiCanvas:setFilter('nearest', 'nearest')

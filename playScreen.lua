@@ -181,38 +181,48 @@ screen.render = function()
 
 
   -- render symbion buttons
- for i,sym in ipairs(player.symbions) do
+  if not subscreen then
+    for i,sym in ipairs(player.symbions) do
+      local life = sym.life/sym.maxLife
+      if player.attachedSymbion == sym then
+        love.graphics.setColor(sym.fg)
+        love.graphics.rectangle('fill',4, i*30,26,26)
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle('line',4, i*30,25,26)
+        local image = tiles[sym.tileset].image
+        local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
+        love.graphics.setColor(Colors.black)
+        love.graphics.draw(image,quad,8,i*30)
+      else
+        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+        love.graphics.rectangle('fill',5, i*30,25,25)
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle('line',4, i*30,26,26)
+        local image = tiles[sym.tileset].image
+        local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
+        love.graphics.setColor(sym.fg)
+        love.graphics.draw(image,quad,8,i*30)
+      end
 
-   local life = sym.life/sym.maxLife
-   if player.attachedSymbion == sym then
-     love.graphics.setColor(sym.fg)
-     love.graphics.rectangle('fill',4, i*30,26,26)
-     love.graphics.setColor(Colors.white)
-     love.graphics.rectangle('line',4, i*30,25,26)
-     local image = tiles[sym.tileset].image
-     local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
-     love.graphics.setColor(Colors.black)
-     love.graphics.draw(image,quad,8,i*30)
-   else
-     love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
-     love.graphics.rectangle('fill',5, i*30,25,25)
-     love.graphics.setColor(Colors.white)
-     love.graphics.rectangle('line',4, i*30,26,26)
-     local image = tiles[sym.tileset].image
-     local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
-     love.graphics.setColor(sym.fg)
-     love.graphics.draw(image,quad,8,i*30)
-   end
-
-   if life < .4 then
-     love.graphics.setColor(Colors.red)
-   else
-     love.graphics.setColor(Colors.white)
-   end
-   love.graphics.rectangle('fill',5,(i*30)+23,life*24,2)
- end
+      if life < .4 then
+        love.graphics.setColor(Colors.red)
+      else
+        love.graphics.setColor(Colors.white)
+      end
+      love.graphics.rectangle('fill',5,(i*30)+23,life*24,2)
+    end
+  end
 
 love.graphics.setCanvas()
+love.graphics.setCanvas(messagesCanvas)
+love.graphics.clear()
+  for i,mess in ipairs(player.messages) do
+    local bottom = love.graphics.getHeight()
+    love.graphics.setColor(Colors.white)
+    love.graphics.print(mess.text, 0, bottom-16*i)
+  end
+love.graphics.setCanvas()
+
 
   function getHealthColor(hp, maxHp)
     percentage = hp/maxHp
@@ -228,6 +238,7 @@ love.graphics.setCanvas()
   -- effects(function()
     love.graphics.draw(mapCanvas, 0,0,0,2)
   -- end)
+  love.graphics.draw(messagesCanvas)
 
   -- if there is a subscreen, do not draw UI stuff
   if subscreen then
@@ -254,7 +265,7 @@ screen.keypressed = function(key)
   if lume.any({'1','2','3'}, function(x) return key == x end) then
 
     if not player.attachedSymbion then
-      if player.symbions[tonumber(key)]:apply(player) then
+      if player.symbions[tonumber(key)] and player.symbions[tonumber(key)]:apply(player) then
         updateUi:trigger('symbionName', player.attachedSymbion.name)
         updateUi:trigger('symbionGui', 'show')
       end
@@ -328,6 +339,16 @@ screen.keypressed = function(key)
       -- love.graphics.rectangle('line', detailsPane.getBorderBox())
       local fontHeight = love.graphics.getFont():getHeight()
 
+      if #player.inventory == 0 then
+        local x,y,w,h = listItem.getBorderBox()
+        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+        love.graphics.rectangle("fill", x, y  + (h), w, h)
+        local xx,yy,ww,hh = listItem.getContentBox()
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle("line", x, y  + (h), w, h)
+        love.graphics.setColor(Colors.white)
+        love.graphics.printf("no items", xx, y + (h) + (h/2 - fontHeight/2),ww)
+      end
       for i,item in ipairs(player.inventory) do
         local x,y,w,h = listItem.getBorderBox()
         love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
