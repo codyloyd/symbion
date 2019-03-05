@@ -6,10 +6,10 @@ GameWorld = {}
 function GameWorld.new()
   local self = {}
   self.levels = {}
-  self.currentLevel = 6
-  self.bottomLevel = 8
-  -- self.levels[self.currentLevel] = Level.new({ mapStyle='forest' })
-  self.levels[self.currentLevel] = Level.new({ mapStyle='dungeon' })
+  self.currentLevel = 1
+  self.bottomLevel = 4
+  self.levels[self.currentLevel] = Level.new({ mapStyle='forest' })
+  -- self.levels[self.currentLevel] = Level.new({ mapStyle='dungeon' })
   -- self.levels[self.currentLevel] = Level.new({ mapStyle='boss' })
 
   function self:getCurrentLevel()
@@ -31,7 +31,6 @@ function GameWorld.new()
     self.player.x, self.player.y = self:getCurrentLevel().upstairs.x, self:getCurrentLevel().upstairs.y
     self.player.map = self:getCurrentLevel().map
 
-    print(self.currentLevel)
     return self.currentLevel
   end
 

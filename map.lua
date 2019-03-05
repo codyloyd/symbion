@@ -4,10 +4,10 @@ Map = {}
 Map.new = function(opts)
   local self = {}
   self.tiles = {}
-  -- mapWidth = 100
-  -- mapHeight = 30 
-  mapWidth = 40
-  mapHeight =  15 
+  mapWidth = 100
+  mapHeight = 30 
+  -- mapWidth = 40
+  -- mapHeight =  15 
   self.width = mapWidth
   self.height = mapHeight
 

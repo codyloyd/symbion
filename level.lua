@@ -102,11 +102,10 @@ function Level.new(opts)
   if opts.mapStyle == "boss" then
     self.addEntityAtRandomPosition(Entity.new(Entity.templates.Chelzrath))
   else
-    self.addEntityAtRandomPosition(Entity.new(Entity.templates.plantguy))
-    -- for i=1,17 do
-    --   local entity = Entity.new(Entity.randomEntity())
-    --   self.addEntityAtRandomPosition(entity)
-    -- end
+    for i=1,17 do
+      local entity = Entity.new(Entity.randomEntity())
+      self.addEntityAtRandomPosition(entity)
+    end
     -- -- add Items
     -- for i=1, 19 do
     --   local item = Item.new(Item.randomItem())
