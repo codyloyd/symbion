@@ -80,6 +80,14 @@ screen.exit = function()
   gameWorld = {}
 end
 
+screen.update = function(dt)
+  for _, entity in pairs(gameWorld:getCurrentLevel().entities) do
+    if entity.hitTime < entity.hitDuration then
+      entity.hitTime = entity.hitTime + dt
+    end
+  end
+end
+
 screen.render = function()
   love.graphics.setCanvas(mapCanvas)
   love.graphics.clear(Colors.black)
@@ -125,10 +133,23 @@ screen.render = function()
 
           local image = tiles[tile.tileset].image
           local quad = tiles[tile.tileset].tiles[id]
-          if x == player.x and y == player.y or level.items[x..','..y] or level.getEntityAt(x,y) then
+          if not tile.isLayering and x == player.x and y == player.y or level.items[x..','..y] or not tile.isLayering and level.getEntityAt(x,y) then
             -- if there's an item or the player on this tile, don't draw it
+            -- unless it is set as a 'layering' tile
           else
-            love.graphics.setColor(tile.fg)
+            if tile.bg then
+              if tile.flicker then
+                love.graphics.setColor(Colors.vary(tile.bg, 8))
+              else
+                love.graphics.setColor(tile.bg)
+              end
+              love.graphics.rectangle('fill',(x-(topLeftX))*tilewidth,(y-(topLeftY))*tileheight, tilewidth, tileheight)
+            end
+              if tile.flicker then
+                love.graphics.setColor(Colors.vary(tile.fg, 8))
+              else
+                love.graphics.setColor(tile.fg)
+              end
             love.graphics.draw(image, quad, (x-(topLeftX))*tilewidth,(y-(topLeftY))*tileheight)
           end
         end
@@ -169,8 +190,17 @@ screen.render = function()
       if visibleTiles[key] then
         local image = tiles[entity.tileset].image
         local quad = tiles[entity.tileset].tiles[tonumber(entity.tileid)]
+        local dx,dy = 0, 0
+        local r = entity:getAngle() or 0
         love.graphics.setColor(entity.fg)
-        love.graphics.draw(image, quad, (entity.x-(topLeftX))*tilewidth,(entity.y-(topLeftY))*tileheight)
+        if entity.hitTime < entity.hitDuration then
+          dx,dy = math.random(-2,2), math.random(-2,2)
+          love.graphics.setColor(Colors.addAlpha(Colors.red, .7))
+          love.graphics.draw(image, quad, dx+(entity.x-(topLeftX))*tilewidth,dy+(entity.y-(topLeftY))*tileheight,r,1.2,1.2)
+          dx,dy = math.random(-2,2), math.random(-2,2)
+          love.graphics.setColor(1,0,0)
+        end
+        love.graphics.draw(image, quad, dx+(entity.x-(topLeftX))*tilewidth+tilewidth/2,dy+(entity.y-(topLeftY))*tileheight+tileheight/2,r,1,1,tilewidth/2,tileheight/2)
       end
     end
   end
@@ -260,6 +290,10 @@ screen.keypressed = function(key)
       refresh()
     end
     return
+  end
+
+  if key=='q'then
+    engine:unlock()
   end
 
   if lume.any({'1','2','3'}, function(x) return key == x end) then
@@ -378,6 +412,68 @@ screen.keypressed = function(key)
           item:apply()
         end
         table.remove(player.inventory, selectedItem+1)
+      end
+    end
+  elseif key=='s'then
+    subscreen = {}
+    local myGrid = grid({
+        x=0,
+        y=0,
+        w=love.graphics.getWidth(),
+        h=love.graphics.getHeight(),
+        rows=1,
+        cols=8,
+        margin = 8
+    })
+    local selectedItem = 0
+    local listPane = myGrid.createCell({row=0, col=0, colSpan=2, padding=12})
+    local listGrid = grid({x=listPane.x,y=listPane.y,h=listPane.h,w=listPane.w,rows=26})
+    local listItem = listGrid.createCell({padding=12})
+    local detailsPane = myGrid.createCell({row=0, col=2, colSpan=6, padding=12})
+    function subscreen.render()
+      love.graphics.setLineWidth(2)
+      love.graphics.setColor(Colors.white)
+      -- love.graphics.rectangle('line', listPane.getBorderBox())
+      -- love.graphics.rectangle('line', detailsPane.getBorderBox())
+      local fontHeight = love.graphics.getFont():getHeight()
+
+      if #player.symbions == 0 then
+        local x,y,w,h = listItem.getBorderBox()
+        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+        love.graphics.rectangle("fill", x, y  + (h), w, h)
+        local xx,yy,ww,hh = listItem.getContentBox()
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle("line", x, y  + (h), w, h)
+        love.graphics.setColor(Colors.white)
+        love.graphics.printf("no items", xx, y + (h) + (h/2 - fontHeight/2),ww)
+      end
+      for i,item in ipairs(player.symbions) do
+        local x,y,w,h = listItem.getBorderBox()
+        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+        love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
+
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle("line", x, y  + (h*(i-1)), w, h)
+        if selectedItem + 1 == i then
+          love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
+          love.graphics.setColor(Colors.black)
+        end
+        local xx,yy,ww,hh = listItem.getContentBox()
+        love.graphics.printf(item.name, xx, y + (h*(i-1)) + (h/2 - fontHeight/2),ww)
+      end
+      local x,y,w,h = detailsPane.getContentBox()
+      love.graphics.setColor(Colors.white)
+      love.graphics.printf(player.symbions[selectedItem+1].desc, x,y,w,'left')
+    end
+
+    function subscreen.keypressed(key)
+      if key == 'j' or key == 'down' then
+        selectedItem = (selectedItem + 1) % #player.symbions
+      end
+      if key == 'k' or key == 'up' then
+        selectedItem = (selectedItem - 1) % #player.symbions
+      end
+      if key == 'return' then
       end
     end
   end

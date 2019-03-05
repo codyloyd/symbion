@@ -45,7 +45,9 @@ function Level.new(opts)
   end
 
   function self.removeEntity(entityToRemove)
+    local count = 1
     for i, entity in pairs(self.entities) do
+      count = count + 1
       if entity == entityToRemove then
         table.remove(self.entities, i)
         if entity:hasMixin('Actor') then
@@ -77,7 +79,11 @@ function Level.new(opts)
   end
 
   function self.isEmptyFloor(x, y)
-    return self.map.getTile(x, y) and self.map.getTile(x,y).name == 'floorTile' and not self.getEntityAt(x,y)
+    local tile = self.map.getTile(x,y)
+    if tile then
+      return tile.name =='floorTile' or tile.name=='islandTile' and not self.getEntityAt(x,y)
+    end
+    return false
   end
 
   function self.getRandomFloorPosition()
@@ -93,27 +99,20 @@ function Level.new(opts)
     self.addEntity(entity)
   end
 
-  -- add entities to map
-  -- for i=1, 3 do
-  --   local entity = Entity.new(Entity.FungusTemplate)
-  --   self.addEntityAtRandomPosition(entity)
-  -- end
-  -- for i=1, 7 do
-  --   local entity = Entity.new(Entity.MonsterTemplate)
-  --   self.addEntityAtRandomPosition(entity)
-  -- end
-  -- for i=1, 5 do
-  --   local entity = Entity.new(Entity.BatTemplate)
-  --   self.addEntityAtRandomPosition(entity)
-  -- end
-  for i=1,17 do
-    local entity = Entity.new(Entity.randomEntity())
-    self.addEntityAtRandomPosition(entity)
-  end
-    -- add Items
-  for i=1, 19 do
-    local item = Item.new(Item.randomItem())
-    self.addItemAtRandomPosition(item)
+  if opts.mapStyle == "boss" then
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.Chelzrath))
+  else
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.plantguy))
+    -- for i=1,17 do
+    --   local entity = Entity.new(Entity.randomEntity())
+    --   self.addEntityAtRandomPosition(entity)
+    -- end
+    -- -- add Items
+    -- for i=1, 19 do
+    --   local item = Item.new(Item.randomItem())
+    --   self.addItemAtRandomPosition(item)
+    -- end
+
   end
   -- add downstairs
   self.downstairs = {}

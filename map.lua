@@ -4,8 +4,10 @@ Map = {}
 Map.new = function(opts)
   local self = {}
   self.tiles = {}
-  mapWidth = 100
-  mapHeight = 30 
+  -- mapWidth = 100
+  -- mapHeight = 30 
+  mapWidth = 40
+  mapHeight =  15 
   self.width = mapWidth
   self.height = mapHeight
 
@@ -57,6 +59,15 @@ Map.new = function(opts)
         self.tiles[x][y] = Tile.new(Tile.floorTile)
       elseif val == 1 then
         self.tiles[x][y] = Tile.new(Tile.rockTile)
+      end
+    end)
+  elseif opts and opts.mapStyle == 'boss' then
+    local gen = ROT.Map.Rogue:new(mapWidth,mapHeight)
+    gen:create(function (x,y,val)
+      if val == 0 then
+        self.tiles[x][y] = Tile.new(Tile.islandTile)
+      elseif val == 1 then
+        self.tiles[x][y] = Tile.new(Tile.lavaTile)
       end
     end)
   else

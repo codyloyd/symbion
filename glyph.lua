@@ -24,6 +24,9 @@ Glyph.new = function(opts)
 
   if opts and opts.varyColor then
     self.fg = Colors.vary(self.fg, opts.varyColor)
+    if opts.bg then
+      self.bg = Colors.vary(self.bg, opts.varyColor)
+    end
   end
 
   return self

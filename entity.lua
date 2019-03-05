@@ -15,7 +15,10 @@ Entity.new = function(opts)
   self.y = opts and opts.y or 0
   self.map = opts and opts.map
   self.speed = opts and opts.speed or 1000
+  self.noRandom = opts and opts.noRandom or false
   self.speedModifier = 1
+  self.hitDuration = -1
+  self.hitTime = 0
 
   -- mixin system
   self.attachedMixins = {}
@@ -47,6 +50,17 @@ Entity.new = function(opts)
     end
   end
 
+  function self:getAngle()
+    if self.direction then
+      return lume.angle(0,0,self.direction[1], self.direction[2]) + 1.570796
+    end
+    return false
+  end
+
+  function self:hit()
+    self.hitTime, self.hitDuration = 0, .1
+  end
+
   function self:getSpeed() return
       self.speed * self.speedModifier
   end
@@ -56,8 +70,10 @@ end
 
 Entity.randomEntity = function()
   local keys = {}
-  for key, value in pairs(Entity.templates) do
-    keys[#keys+1] = key --Store keys in another table
+  for key, value in pairs(Entity.templates) do 
+    if not value.noRandom then
+      keys[#keys+1] = key --Store keys in another table
+    end
   end
   index = keys[math.random(1, #keys)]
   return Entity.templates[index]
@@ -78,6 +94,9 @@ for i,item in ipairs(lines) do
     local values = splitString(lines[i], "|")
     for i,value in ipairs(values) do
       newItem[headers[i]] = value:gsub("%s+", "")
+      if newItem[headers[i]] == '' then
+        newItem[headers[i]] = nil
+      end
     end
     table.insert(itemsArray, newItem)
   end
@@ -111,42 +130,4 @@ Entity.PlayerTemplate = {
   maxHp = 40,
   attackValue = 10,
   mixins = {"Movable","PlayerActor","Destructible","Attacker","MessageRecipient","InventoryHolder","SymbionUser"}
-}
-
-Entity.FungusTemplate = {
-  name = 'fungus',
-  char = 'F',
-  tileset = 'Terrain_Objects',
-  tileid = 93,
-  fg = Colors.green,
-  bg = Colors.black,
-  maxHp = 10,
-  speed = 250,
-  mixins = {Mixins.FungusActor, Mixins.Destructible}
-}
-
-Entity.MonsterTemplate = {
-  name = 'monster',
-  char = 'M',
-  tileset = 'Monsters',
-  tileid = 273,
-  fg = Colors.orange,
-  bg = Colors.black,
-  maxHp = 10,
-  speed = 900,
-  sightRadius = 8,
-  mixins = {Mixins.Movable, Mixins.Attacker, Mixins.MonsterActor, Mixins.Destructible, Mixins.Sight}
-}
-
-Entity.BatTemplate = {
-  name = 'bat',
-  char = 'b',
-  tileset = 'Monsters',
-  tileid = 82,
-  fg = Colors.blue,
-  bg = Colors.black,
-  maxHp = 10,
-  speed = 1600,
-  sightRadius = 10,
-  mixins = {Mixins.Movable, Mixins.Attacker, Mixins.MonsterActor, Mixins.Destructible, Mixins.Sight}
 }

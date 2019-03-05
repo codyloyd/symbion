@@ -19,7 +19,9 @@ function Engine:unlock()
     self._lock=self._lock-1
     while self._lock<1 do
         local actor=self._scheduler:next()
-        if not actor then return self:lock() end
+        if not actor then 
+          return self:lock() 
+        end
         actor:act()
     end
     return self

@@ -6,8 +6,8 @@ Mixins.Movable = {
 }
 
 function Mixins.Movable:tryMove(x,y,level)
-    tile = level.map.getTile(x,y)
-    target = level.getEntityAt(x,y)
+    local tile = level.map.getTile(x,y)
+    local target = level.getEntityAt(x,y)
     if player.x == x and player.y == y then
       target = player
     end
@@ -38,7 +38,10 @@ end
 
 function Mixins.Destructible:takeDamage(attacker, damage)
   self.hp = self.hp - damage
+  self:hit()
   if self == player then
+    startShake(.15,1)
+    flashScreen(.04)
     updateUi:trigger('healthBar', self.hp/self.maxHp)
   end
   if self.hp <= 0 then
@@ -68,8 +71,8 @@ end
 function Attacker:attack(target)
   if target == self then return end
   if target:hasMixin('Destructible') then
-    attack, defense = self.attackValue * self.attackModifier, target.defenseValue
-    damage = math.random(1, math.max(0, attack - defense))
+    local attack, defense = self.attackValue * self.attackModifier, target.defenseValue
+    local damage = math.random(1, math.max(0, attack - defense))
     sendMessage(self, string.format("You strike the %s for %d damage!", target.name, damage))
     sendMessage(target, string.format("The %s strikes you for %d damage!", self.name, damage))
     target:takeDamage(self, damage)
@@ -220,7 +223,7 @@ function Mixins.MonsterActor:act()
   local dy = math.random( -1, 1 )
   if self:canSee(player) then
     local newX, newY = nil, nil
-    path = ROT.Path.AStar(player.x, player.y, function(x,y)
+    local path = ROT.Path.AStar(player.x, player.y, function(x,y)
 
       local entity = self.level.getEntityAt(x,y)
       if entity and entity ~= player and entity ~= self then
@@ -245,6 +248,112 @@ function Mixins.MonsterActor:act()
   else
     if dx or dy then
       self:tryMove(self.x + dx, self.y + dy, self.level)
+    end
+  end
+end
+
+Mixins.PlantActor = {
+  name='PlantActor',
+  groupName='Actor'
+}
+
+function Mixins.PlantActor:act()
+  local level = self.level
+  for x=-1,1 do
+    for y=-1,1 do
+      if x == 0 and y == 0 then
+      elseif math.random(10) < 5 then
+        local newProjectile = Entity.new(Entity.templates.projectile) 
+        newProjectile.direction = {x,y}
+        newProjectile.x, newProjectile.y = self.x + newProjectile.direction[1], self.y + newProjectile.direction[2]
+        level.addEntity(newProjectile)
+      end
+    end
+  end
+end
+
+
+Mixins.ChelzrathActor = {
+  name = 'ChelzrathActor',
+  groupName = 'Actor'
+}
+
+function Mixins.ChelzrathActor:act()
+  local level = self.level
+  for x=-1,1 do
+    for y=-1,1 do
+      if x == 0 and y == 0 then
+      else
+        local newProjectile = Entity.new(Entity.templates.projectile) 
+        if math.random(10) < 2 then
+          newProjectile = Entity.new(Entity.templates.bomb) 
+        end
+        newProjectile.direction = {x,y}
+        newProjectile.x, newProjectile.y = self.x + newProjectile.direction[1], self.y + newProjectile.direction[2]
+        level.addEntity(newProjectile)
+      end
+    end
+  end
+end
+
+Mixins.ProjectileActor = {
+  name='ProjectileActor',
+  groupName='Actor'
+}
+
+function Mixins.ProjectileActor:init(opts)
+  self.direction = opts and opts.direction or {-1, 0}
+end
+
+function Mixins.ProjectileActor:act()
+  local x, y, level = self.x + self.direction[1], self.y + self.direction[2], self.level
+  local target
+  local tile = level.map.getTile(x,y)
+  if tile and tile.blocksLight or not tile then
+    self.level.removeEntity(self)
+    return true
+  end
+  if player.x == x and player.y == y then
+    target = player
+  end
+  if target and target:hasMixin('Destructible') then
+    target:takeDamage(self, 1)
+    self.level.removeEntity(self)
+    return true
+  end
+
+  self.x, self.y = x, y
+
+  if self:hasMixin('Exploder') then
+    self:tick()
+  end
+  return true
+end
+
+Mixins.Exploder = {
+  name='Exploder'
+}
+
+function Mixins.Exploder:init(opts)
+  self.life = opts and opts.life or 4
+end
+
+function Mixins.Exploder:tick()
+  local level = self.level
+  self.life = self.life - 1
+  if self.life == 0 then
+    for x=-1,1 do
+      for y=-1,1 do
+        if x == 0 and y == 0 then
+        else
+          if math.random(10) > 5 then
+            local newProjectile = Entity.new(Entity.templates.projectile) 
+            newProjectile.direction = {x,y}
+            newProjectile.x, newProjectile.y = self.x + newProjectile.direction[1], self.y + newProjectile.direction[2]
+            level.addEntity(newProjectile)
+          end
+        end
+      end
     end
   end
 end

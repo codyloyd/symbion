@@ -74,9 +74,11 @@ end
 -- @tparam any event The previously added event to be removed
 -- @treturn boolean true if an event was removed from the queue
 function EventQueue:remove(event)
-    local index=table.indexOf(self._events, event)
-    if index==0 then return false end
-    self:_remove(index)
+    for i,x in ipairs(self._events) do
+      if x == event then
+        self:_remove(i)
+      end
+    end
     return true
 end
 

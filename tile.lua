@@ -11,6 +11,8 @@ Tile.new = function(opts)
   self.name = opts and opts.name or 'tile'
   self.blocksLight = opts and opts.blocksLight
   self.isWalkable = opts and opts.isWalkable
+  self.isLayering = opts and opts.isLayering
+  self.flicker = opts and opts.flicker
   return self
 end
 
@@ -95,6 +97,29 @@ Tile.treeTile = {
   fg=Colors.lightGray,
   varyColor = 10,
   blocksLight=true
+}
+
+Tile.islandTile = {
+  isLayering=true,
+  name='islandTile',
+  char='.',
+  tileset='Terrain',
+  tileid=13,
+  fg=Colors.veryDarkBrown,
+  varyColor = 4,
+  isWalkable=true
+}
+
+Tile.lavaTile = {
+  name="lavaTile",
+  char='.',
+  tileset='Terrain',
+  tileid=18,
+  fg=Colors.orange,
+  bg=Colors.darkRed,
+  varyColor = 4,
+  isLayering=true,
+  isWalkable=false
 }
 
 Tile.floorTile = {

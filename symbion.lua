@@ -12,6 +12,7 @@ Symbion.new = function(opts)
   end
 
   self.name = opts and opts.name or 'Symbion'
+  self.desc = opts and opts.desc or 'a little weenie of a slug'
 
   -- mixin system
   self.attachedMixins = {}
@@ -45,6 +46,7 @@ Symbion.new = function(opts)
 
   function self.kill()
     self.dead = true;
+    updateUi:trigger('symbionGui', 'hide')
     lume.remove(player.symbions, self)
   end
 
@@ -56,7 +58,8 @@ Symbion.SpeedyTemplate = {
   tileset = 'Monsters',
   tileid = 93,
   fg = Colors.lightGreen,
-  name="Frank"
+  name="Frank",
+  desc="This small prickly little fella will increase your speed.  Useful when making a run for it!"
 }
 
 Mixins.Speedy = {
@@ -64,7 +67,6 @@ Mixins.Speedy = {
 }
 
 function Mixins.Speedy:init()
-  self.randomNumber = math.random(0,100)
   self.maxLife = 20
   self.life = self.maxLife
   self.isAttached = false
@@ -105,7 +107,8 @@ Symbion.PunchyTemplate = {
   tileset = 'Monsters',
   tileid = 459,
   fg = Colors.lightBlue,
-  name="Carlos"
+  name="Carlos",
+  desc="Carlos is a fat little guy and is heavier than he looks.  He'll increase your attack power significantly."
 }
 
 Mixins.Punchy = {
