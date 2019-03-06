@@ -6,6 +6,7 @@ Symbion = {}
 Symbion.templates = {}
 Symbion.new = function(opts)
   opts.tileid = lume.randomchoice(Symbion.tiles)
+  opts.tileset = 'Monsters'
   opts.fg = lume.randomchoice(Symbion.colors)
   local self = {}
   local glyph = Glyph.new(opts)
@@ -15,8 +16,13 @@ Symbion.new = function(opts)
 
   self.name = opts and opts.name or lume.randomchoice(Symbion.names)
   self.desc = opts and opts.desc or 'a little weenie of a slug'
+  self.isAttached = false
+  self.maxLife = opts and opts.maxLife or 20
+  self.life = opts and opts.life or self.maxLife
 
   -- mixin system
+  self.applyFunctions = {}
+  self.removeFunctions = {}
   self.attachedMixins = {}
   self.attachedMixinGroups = {}
   mixins = opts and opts.mixins
@@ -24,13 +30,19 @@ Symbion.new = function(opts)
     for _,mixinName in ipairs(mixins) do
       local mixin = Mixins[mixinName]
       for key,value in pairs(mixin) do
-        if key ~= 'init' and key ~= 'name' then
+        if key ~= 'init' and key ~= 'name' and key ~= 'apply' and key ~= 'remove' then
           self[key] = value
         end
       end
       self.attachedMixins[mixin.name] = true
       if mixin.groupName then
         self.attachedMixinGroups[mixin.groupName] = true
+      end
+      if mixin.apply then
+        table.insert(self.applyFunctions, mixin.apply)
+      end
+      if mixin.remove then
+        table.insert(self.removeFunctions, mixin.remove)
       end
       if mixin.init then
         mixin.init(self, opts)
@@ -46,11 +58,43 @@ Symbion.new = function(opts)
     end
   end
 
+  function self:update()
+    if self.isAttached then
+      self.life = self.life - 1
+      updateUi:trigger('symbionBar', self.life/self.maxLife)
+      if self.life <= 0 then
+        player.attachedSymbion = nil
+        self.kill()
+      end
+    else
+      self.life = math.min(self.life + 1, self.maxLife)
+    end
+  end
+
   function self.kill()
     self.dead = true;
     updateUi:trigger('symbionGui', 'hide')
     self:remove(player)
     lume.remove(player.symbions, self)
+  end
+
+  function self:apply(player)
+    if self.life/self.maxLife > .4 then
+      player.attachedSymbion = self
+      self.isAttached = true
+      lume.each(self.applyFunctions, function(fun)
+        fun(self, player)
+      end)
+      return true
+    end
+  end
+
+  function self:remove(player)
+    self.isAttached = false
+    player.attachedSymbion = nil
+    lume.each(self.removeFunctions, function(fun)
+      fun(self, player)
+    end)
   end
 
   return self
@@ -123,90 +167,74 @@ end
 
 Symbion.templates.Speedy = {
   mixins = {"Speedy"},
-  tileset = 'Monsters',
-  desc="This small prickly little fella will increase your speed.  Useful when making a run for it!"
+  desc="Increases speed 2x"
+}
+Symbion.templates.Speedy2 = {
+  mixins = {"Speedy"},
+  desc="Increases speed 3x",
+  speedModifier=3
+}
+Symbion.templates.Speedy3 = {
+  mixins = {"Speedy","Punchy"},
+  desc="Increases speed 4x, but lowers attack power by 25%",
+  speedModifier=4,
+  attackModifier=.75
+}
+Symbion.templates.Speedy4 = {
+  mixins = {"Speedy","Punchy"},
+  desc="Increases speed 6x, but lowers attack power by 75%",
+  speedModifier=6,
+  attackModifier=.25
+}
+Symbion.templates.Punchy = {
+  mixins = {"Punchy"},
+  desc="increases attack power 2x"
+}
+Symbion.templates.Punchy2 = {
+  mixins = {"Punchy"},
+  desc="increases attack power 3x",
+  attackModifier=3
+}
+Symbion.templates.Punchy3 = {
+  mixins = {"Punchy", "Speedy"},
+  desc="increases attack power 4x, lowers speed by 25%",
+  attackModifier=4,
+  speedModifier=.75
+}
+Symbion.templates.FastPunchy = {
+  mixins = {"Punchy", "Speedy"},
+  desc="Increases Speed 2x and increases attack 2x."
 }
 
 Mixins.Speedy = {
   name = 'Speedy'
 }
 
-function Mixins.Speedy:init()
-  self.maxLife = 20
-  self.life = self.maxLife
-  self.isAttached = false
+function Mixins.Speedy:init(opts)
+  self.speedModifier = opts and opts.speedModifier or 2
 end
 
-function Mixins.Speedy:update()
-  if self.isAttached then
-    self.life = self.life - 1
-    updateUi:trigger('symbionBar', self.life/self.maxLife)
-    if self.life <= 0 then
-      player.attachedSymbion = nil
-      self.kill()
-    end
-  else
-    self.life = math.min(self.life + 1, self.maxLife)
-  end
+function Mixins.Speedy.apply(self, player)
+  player.speedModifier = self.speedModifier
 end
 
-function Mixins.Speedy:apply(player)
-  if self.life/self.maxLife > .4 then
-    self.isAttached = true
-    player.attachedSymbion = self
-    player.speedModifier = 3
-    return true
-  end
-  return false
-end
-
-function Mixins.Speedy:remove(player)
-  self.isAttached = false
-  player.attachedSymbion = nil
+function Mixins.Speedy.remove(self, player)
   player.speedModifier = 1
 end
 
-Symbion.templates.Punchy = {
-  mixins = {"Punchy"},
-  tileset = 'Monsters',
-  desc="A fat little guy and is heavier than he looks.  He'll increase your attack power significantly."
-}
 
 Mixins.Punchy = {
   name = 'Punchy'
 }
 
-function Mixins.Punchy:init()
-  self.maxLife = 20
-  self.life = self.maxLife
-  self.isAttached = false
-end
-
-function Mixins.Punchy:update()
-  if self.isAttached then
-    self.life = self.life - 1
-    updateUi:trigger('symbionBar', self.life/self.maxLife)
-    if self.life <= 0 then
-      player.attachedSymbion = nil
-      self.kill()
-    end
-  else
-    self.life = math.min(self.life + 1, self.maxLife)
-  end
+function Mixins.Punchy:init(opts)
+  self.attackModifier = opts and opts.attackModifier or 2
 end
 
 function Mixins.Punchy:apply(player)
-  if self.life/self.maxLife > .4 then
-    self.isAttached = true
-    player.attachedSymbion = self
-    player.attackModifier = 3
-    return true
-  end
-  return false
+    player.attackModifier = self.attackModifier 
 end
 
 function Mixins.Punchy:remove(player)
-  self.isAttached = false
-  player.attachedSymbion = nil
   player.attackModifier = 1
 end

@@ -12,6 +12,9 @@ love.graphics.setDefaultFilter('nearest', 'nearest')
 
 local shakeTime, shakeDuration, shakeMagnitude = 0, -1, 0
 
+local fadeAlpha, fading, fadeSpeed = 0, false, 50
+local fadeCallback = function()end
+
 function love.load()
   function width() return love.graphics.getWidth() end
   function height() return love.graphics.getHeight() end
@@ -92,6 +95,13 @@ function love.update(dt)
     love.graphics.setColor(Colors.pureWhite)
     love.graphics.rectangle('fill',0,0,love.graphics.getWidth(),love.graphics.getHeight())
   love.graphics.setCanvas()
+  if fading then
+    fadeAlpha = fadeAlpha + fadeSpeed * dt
+    if fadeAlpha >= 100 then
+      fadeCallback()
+      fading = false
+    end
+  end
 end
 
 function love.draw()
@@ -104,6 +114,10 @@ function love.draw()
   if flashScreenTime < flashScreenDuration then
     love.graphics.setColor(.4,0,0,.5)
     love.graphics.draw(flashCanvas)
+  end
+  if fading then
+    love.graphics.setColor(0,0,0,fadeAlpha/100)
+    love.graphics.rectangle('fill', 0,0, love.graphics.getWidth(), love.graphics.getHeight())
   end
 end
 
@@ -135,6 +149,13 @@ function startShake(duration, magnitude)
 end
 function flashScreen(duration)
   flashScreenTime, flashScreenDuration = 0, duration or 1
+end
+
+function fadeOut(speed,callback)
+  fadeAlpha = 0
+  fading = true
+  fadeSpeed = speed
+  fadeCallback = callback
 end
 
 --helpers

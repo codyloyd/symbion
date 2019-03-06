@@ -278,7 +278,9 @@ function Mixins.ChelzrathActor:act()
 end
 
 function Mixins.ChelzrathActor:deathCallback()
-  endGame:trigger('win')
+  fadeOut(40, function() 
+    endGame:trigger('win')
+  end)
 end
 
 Mixins.ProjectileActor = {

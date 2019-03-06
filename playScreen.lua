@@ -18,6 +18,8 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
+  local sym = Symbion.new(Symbion.templates.Speedy3)
+  player:addSymbion(sym)
 
   -- set up game UI elements
   uiElements = {}
@@ -307,7 +309,6 @@ screen.keypressed = function(key)
   end
 
   if key=='q'then
-    engine:unlock()
   end
 
   if lume.any({'1','2','3'}, function(x) return key == x end) then
