@@ -1,14 +1,15 @@
 
-| name       | char | tileset         | tileid | fg         | mixins                                           | maxHp | speed | sightRadius | noRandom | flickers |
-|------------+------+-----------------+--------+------------+--------------------------------------------------+-------+-------+-------------+----------+----------|
-| fungus     | F    | Monsters        |    396 | green      | FungusActor,Destructible                         |    10 |   50  |             |          |          |
-| monster    | M    | Monsters        |    273 | orange     | Movable,Attacker,MonsterActor,Destructible,Sight |    10 |   900 |           8 |          |          |
-| bat        | b    | Monsters        |     82 | blue       | Movable,Attacker,MonsterActor,Destructible,Sight |    10 |  1600 |          10 |          |          |
-| zombie     | z    | Monsters        |    169 | lightGreen | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |   800 |           6 |          |          |
-| ghost      | z    | Monsters        |    306 | lightBlue  | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |   800 |          14 |          |          |
-| spider     | z    | Monsters        |     78 | lightBrown | Movable,Attacker,MonsterActor,Destructible,Sight |    15 |  1800 |          14 |          |          |
-| plantguy   | p    | Monsters        |    348 | yellow     | PlantActor,Destructible,Sight                    |    15 |   250 |          14 |          |          |
-| Chelzrath  | X    | Monsters        |    308 | pureWhite  | Movable,ChelzrathActor,Destructible,Sight        |    80 |   600 |          25 | true     |          |
-| projectile | -    | FX_Projectiles  |     15 | pureWhite  | Movable,ProjectileActor,Destructible             |     1 |  1000 |             | true     |          |
-| bomb       | -    | FX_Projectiles  |     20 | yellow     | Movable,ProjectileActor,Exploder,Destructible    |     1 |  1000 |             | true     | true     |
-| symbionEgg | o    | Terrain_Objects |     95 | darkGreen  | SymbionActor,Destructible                        |   100 |   500 |             | true     |          |
+| name             | char | tileset         | tileid | fg         | mixins                                                | maxHp | speed | sightRadius | noRandom | flickers |
+|------------------+------+-----------------+--------+------------+-------------------------------------------------------+-------+-------+-------------+----------+----------|
+| fungus           | F    | Monsters        |    396 | green      | FungusActor,Destructible                              |    10 |    50 |             |          |          |
+| monster          | M    | Monsters        |    273 | orange     | Movable,Attacker,MonsterActor,Destructible,Sight      |    10 |   900 |           8 |          |          |
+| bat              | b    | Monsters        |     82 | blue       | Movable,Attacker,MonsterActor,Destructible,Sight      |    10 |  1600 |          10 |          |          |
+| zombie           | z    | Monsters        |    169 | lightGreen | Movable,Attacker,MonsterActor,Destructible,Sight      |    15 |   800 |           6 |          |          |
+| ghost            | z    | Monsters        |    306 | lightBlue  | Movable,Attacker,MonsterActor,Destructible,Sight      |    15 |   800 |          14 |          |          |
+| spider           | z    | Monsters        |     78 | lightBrown | Movable,Attacker,MonsterActor,Destructible,Sight      |    15 |  1800 |          14 |          |          |
+| plantguy         | p    | Monsters        |    348 | yellow     | PlantActor,Destructible,Sight                         |    15 |   250 |          14 |          |          |
+| Chelzrath        | X    | Monsters        |    308 | pureWhite  | Movable,ChelzrathActor,Destructible,Sight             |    80 |   600 |          25 | true     |          |
+| projectile       | -    | FX_Projectiles  |     15 | pureWhite  | Movable,ProjectileActor,Destructible                  |     1 |  1000 |             | true     |          |
+| playerProjectile | -    | FX_Projectiles  |     15 | lightGray  | Movable,ProjectileActor,Destructible,playerProjectile |     1 |  1000 |             | true     |          |
+| bomb             | -    | FX_Projectiles  |     20 | yellow     | Movable,ProjectileActor,Exploder,Destructible         |     1 |  1000 |             | true     | true     |
+| symbionEgg       | o    | Terrain_Objects |     95 | darkGreen  | SymbionActor,Destructible                             |   100 |   500 |             | true     |          |

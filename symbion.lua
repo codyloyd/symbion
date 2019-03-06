@@ -267,3 +267,98 @@ end
 function Mixins.HealthRegen:remove()
   player.healthRegenRate = 0
 end
+
+Symbion.templates.shooter = {
+  mixins={'ProjectileShooter'},
+  desc="allows you to shoot projectiles in every direction",
+  projectileSpeed = 2000
+}
+
+Mixins.ProjectileShooter = {
+  name="ProjectileShooter"
+}
+
+function Mixins.ProjectileShooter:init(opts)
+  self.projectileSpeed = opts and opts.projectileSpeed or 1500
+end
+
+function Mixins.ProjectileShooter:ability(player)
+  local level = gameWorld:getCurrentLevel()
+  for x=-1,1 do
+    for y=-1,1 do
+      if x == 0 and y == 0 then
+      else
+        local newProjectile = Entity.new(Entity.templates.playerProjectile) 
+        newProjectile.direction = {x,y}
+        newProjectile.speed = self.projectileSpeed
+        newProjectile.x, newProjectile.y = player.x, player.y
+        level.addEntity(newProjectile)
+      end
+    end
+  end
+end
+
+Symbion.templates.stunner = {
+  mixins = {"Stun"},
+  desc="stuns enemies adjacent to you for 4 turns"
+}
+Symbion.templates.stunner2 = {
+  mixins = {"Stun"},
+  desc="stuns enemies adjacent to you for 5 turns",
+  stunDuration = 5
+}
+Symbion.templates.stunner3 = {
+  mixins = {"Stun"},
+  desc="stuns enemies adjacent to you for 6 turns",
+  stunDuration = 6
+}
+Symbion.templates.stunner4 = {
+  mixins={"Stun"},
+  desc="stuns enemies that are within 3 spaces you for 8 turns",
+  stunDuration = 8,
+  stunRadius = 3
+}
+
+Mixins.Stun = {
+  name="Stun"
+}
+
+function Mixins.Stun:init(opts)
+  self.stunRadius = opts and opts.stunRadius or 1
+  self.stunDuration = opts and opts.stunDuration or 4
+end
+
+function Mixins.Stun:ability(player)
+  local entities = gameWorld:getCurrentLevel().getEntitiesWithinRadius(player.x, player.y, self.stunRadius)
+  lume.each(entities, function(entity)
+    entity:stun(self.stunDuration)
+  end)
+end
+
+Symbion.templates.kill = {
+  mixins={'Fireball'}
+}
+
+Mixins.Fireball = {
+  name='Fireball'
+}
+function Mixins.Fireball:init(opts)
+end
+
+function Mixins.Fireball:ability(player)
+  -- enter "range selection mode"
+  -- firethatfireball
+  targetSomething(4,function(x,y)
+    local target = gameWorld:getCurrentLevel().getEntityAt(x,y)
+    if target and target:hasMixin('Destructible') then
+      local topLeftX = math.max(1, player.x - (screenWidth / 2))
+      local topLeftX = math.min(topLeftX, mapWidth - screenWidth)
+      local topLeftY = math.max(1, player.y - (screenHeight / 2))
+      local topLeftY = math.min(topLeftY, mapHeight - screenHeight)
+
+      fireworks((x-topLeftX)*2*tilewidth+tilewidth/2,(y-topLeftY)*2*tileheight+tileheight/2, target.fg)
+      target:takeDamage(player, 100)
+    end
+  end)
+end
+

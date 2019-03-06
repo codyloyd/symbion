@@ -1,5 +1,6 @@
 ROT=require './lib/rotLove/src/rot'
 require('colors')
+require('particles')
 require('loadTileset')
 require('/lib/gooi')
 Luvent = require('/lib/Luvent/src/Luvent')
@@ -45,6 +46,7 @@ function love.load()
   tiles.Avatar = loadTileset('img/Avatar.json')
   tiles.Items = loadTileset('img/Items.json')
   tiles.FX_Projectiles = loadTileset('img/FX_Projectiles.json')
+  tiles.Interface = loadTileset('img/Interface.json')
 
   love.window.setMode(2*screenWidth*tilewidth,2*screenHeight*tileheight)
 
@@ -89,6 +91,8 @@ function love.update(dt)
   if flashScreenTime < flashScreenDuration then
     flashScreenTime = flashScreenTime + dt
   end
+  
+  particles.update(dt)
 
   love.graphics.setCanvas(flashCanvas)
     love.graphics.clear()
@@ -111,6 +115,7 @@ function love.draw()
     love.graphics.translate(dx, dy)
   end
   currentScreen.render(frame)
+  particles.draw()
   if flashScreenTime < flashScreenDuration then
     love.graphics.setColor(.4,0,0,.5)
     love.graphics.draw(flashCanvas)
@@ -156,6 +161,13 @@ function fadeOut(speed,callback)
   fading = true
   fadeSpeed = speed
   fadeCallback = callback
+end
+
+function fireworks(x,y,c)
+  local color = c or Colors.white
+  for i=1,55 do
+    particles.new(x,y,1,760,Colors.vary(color, 50))
+  end
 end
 
 --helpers

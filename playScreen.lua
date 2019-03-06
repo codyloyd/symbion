@@ -7,10 +7,10 @@ require('colors')
 local grid = require('lib/grid')
 
 local screen = {}
-local gameWorld
 local subscreen
 local confirmation
 local alert
+local targetingMode
 player = nil
 
 screen.enter = function()
@@ -20,12 +20,13 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  local sym = Symbion.new(Symbion.randomSymbion())
+  local sym = Symbion.new(Symbion.templates.kill)
   player:addSymbion(sym)
   sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
   sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
+
 
   -- set up game UI elements
   uiElements = {}
@@ -216,6 +217,10 @@ screen.render = function()
         local dx,dy = 0, 0
         local r = entity:getAngle() or 0
         love.graphics.setColor(entity.fg)
+        if entity.stunnedTime > 0 then
+          dx,dy = math.random(0,1), math.random(0,1)
+          love.graphics.setColor(Colors.vary(Colors.darkGray, 18))
+        end
         if entity.hitTime < entity.hitDuration then
           dx,dy = math.random(-2,2), math.random(-2,2)
           love.graphics.setColor(Colors.addAlpha(Colors.red, .7))
@@ -240,6 +245,14 @@ screen.render = function()
   -- render player
   love.graphics.setColor(Colors.pureWhite)
   love.graphics.print('@', 4+(player.x-(topLeftX))*tilewidth, (player.y-(topLeftY))*tileheight, 0, 1.5)
+
+  --render targeting mode
+  if targetingMode then
+    local image = tiles[targeting.tileset].image
+    local quad = tiles[targeting.tileset].tiles[tonumber(targeting.tileid)]
+    love.graphics.setColor(Colors.pureWhite)
+    love.graphics.draw(image, quad, (targeting.x-topLeftX)*tilewidth, (targeting.y-topLeftY)*tileheight)
+  end
 
 
   -- render symbion buttons
@@ -317,6 +330,11 @@ screen.keypressed = function(key)
     end
     return
   end
+  -- targetingmode
+  if targetingMode then
+    targeting.keypressed(key)
+    return
+  end
   --render subscreen keypress highjacks keypress function
   if subscreen then
     subscreen.keypressed(key)
@@ -328,6 +346,7 @@ screen.keypressed = function(key)
   end
 
   if key=='q'then
+    fireworks(100,100)
   end
 
   if lume.any({'1','2','3'}, function(x) return key == x end) then
@@ -375,13 +394,20 @@ screen.keypressed = function(key)
       gameWorld:goUpLevel()
       refresh()
     end
+  elseif key == '.' then
+    engine:unlock()
+  elseif key=='a' then
+    if player.attachedSymbion and player.attachedSymbion.ability then
+      player.attachedSymbion:ability(player)
+      engine:unlock()
+    end
   elseif key=='g' then
     -- pick item up
-    local item = gameWorld:getCurrentLevel().items[player.x..','..player.y]
-    if item then
-      player:addInventoryItem(item)
-      gameWorld:getCurrentLevel().removeItem(item)
-    end
+    -- local item = gameWorld:getCurrentLevel().items[player.x..','..player.y]
+    -- if item then
+    --   player:addInventoryItem(item)
+    --   gameWorld:getCurrentLevel().removeItem(item)
+    -- end
   elseif key=='i' then
     -- render item list screen
     -- subscreen = {}
@@ -546,9 +572,55 @@ function move(dx, dy)
   engine:unlock()
 end
 
+function targetSomething(range, callback)
+  targetingMode = true
+  targeting.x, targeting.y = player.x, player.y
+  if callback then
+    targeting.callback = callback
+  end
+end
+
+-- targeting mode
+targeting = {}
+targeting.tileset = "Interface"
+targeting.tileid = 6
+targeting.x = 0
+targeting.y = 0
+targeting.callback = function()end
+
+function targeting.keypressed(key)
+  local move = function(dx,dy)
+    newX = math.max(1, math.min(mapWidth, targeting.x + dx))
+    newY = math.max(1, math.min(mapWidth, targeting.y + dy))
+    targeting.x, targeting.y = newX, newY 
+  end
+  if key=='escape' then
+    targetingMode = false
+  elseif key=='return' then
+    targeting.callback(targeting.x, targeting.y)
+    targetingMode = false
+  elseif key=='up' or key=='k' then
+    move(0,-1)
+  elseif key=='down' or key=='j' then
+    move(0,1)
+  elseif key=='left' or key =='h' then
+    move(-1,0)
+  elseif key=='right' or key== 'l' then
+    move(1,0)
+  elseif key=='b' then
+    move(-1,1)
+  elseif key=='n' then
+    move(1,1)
+  elseif key=='y' then
+    move(-1,-1)
+  elseif key=='u' then
+    move(1,-1)
+  end
+end
+
 function enterSymbionSelectionScreen(symbion)
   if #player.symbions >= player.symbionLimit then
-    gooi.alert({text="you are already carrying your maximum number of symbions"})
+    gooi.alert({text="you are already carrying\nyour maximum number of symbions"})
     alert=true
     return
   end

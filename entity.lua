@@ -19,6 +19,9 @@ Entity.new = function(opts)
   self.speedModifier = 1
   self.hitDuration = -1
   self.hitTime = 0
+  self.canStun = false
+  self.stunnedTime = 0
+
 
   -- mixin system
   self.attachedMixins = {}
@@ -57,12 +60,18 @@ Entity.new = function(opts)
     return false
   end
 
+  function self:stun(time)
+    if self.canStun then
+      self.stunnedTime =  time or 3
+    end
+  end
+
   function self:hit()
     self.hitTime, self.hitDuration = 0, .1
   end
 
-  function self:getSpeed() return
-      self.speed * self.speedModifier
+  function self:getSpeed() 
+    return self.speed * self.speedModifier
   end
 
   return self

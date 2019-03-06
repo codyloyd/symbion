@@ -207,7 +207,15 @@ Mixins.MonsterActor = {
   groupName = 'Actor'
 }
 
+function Mixins.MonsterActor:init()
+  self.canStun = true
+end
+
 function Mixins.MonsterActor:act()
+  if self.stunnedTime >= 0 then
+    self.stunnedTime = self.stunnedTime - 1
+    return
+  end
   local dx = math.random( -1, 1 )
   local dy = math.random( -1, 1 )
   if self:canSee(player) then
@@ -215,7 +223,7 @@ function Mixins.MonsterActor:act()
     local path = ROT.Path.AStar(player.x, player.y, function(x,y)
 
       local entity = self.level.getEntityAt(x,y)
-      if entity and entity ~= player and entity ~= self then
+      if entity and entity ~= player and entity ~= self and entity.name ~= "playerProjectile" then
         return false
       end
 
@@ -291,6 +299,10 @@ function Mixins.ChelzrathActor:deathCallback()
   end)
 end
 
+Mixins.playerProjectile = {
+  name='playerProjectile'
+}
+
 Mixins.ProjectileActor = {
   name='ProjectileActor',
   groupName='Actor'
@@ -308,8 +320,12 @@ function Mixins.ProjectileActor:act()
     self.level.removeEntity(self)
     return true
   end
-  if player.x == x and player.y == y then
-    target = player
+  if self:hasMixin('playerProjectile') then
+    target = level.getEntityAt(x,y)
+  else
+    if player.x == x and player.y == y then
+      target = player
+    end
   end
   if target and target:hasMixin('Destructible') then
     target:takeDamage(self, 1)
