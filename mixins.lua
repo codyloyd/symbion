@@ -45,8 +45,6 @@ function Mixins.Destructible:takeDamage(attacker, damage)
     updateUi:trigger('healthBar', self.hp/self.maxHp)
   end
   if self.hp <= 0 then
-    sendMessage(attacker, string.format('You kill the %s!', self.name))
-    sendMessage(self, string.format('You die at the hands of the %s!', attacker.name))
     if self == player then
       -- switch screen LOSERRRR
       switchScreen(loseScreen)
@@ -73,38 +71,12 @@ function Attacker:attack(target)
   if target:hasMixin('Destructible') then
     local attack, defense = self.attackValue * self.attackModifier, target.defenseValue
     local damage = math.random(1, math.max(0, attack - defense))
-    sendMessage(self, string.format("You strike the %s for %d damage!", target.name, damage))
-    sendMessage(target, string.format("The %s strikes you for %d damage!", self.name, damage))
     target:takeDamage(self, damage)
   end
 end
 
 Mixins.Attacker = Attacker
 
--- MessageRecipient!!
-
-local MessageRecipient = {
-  name = 'MessageRecipient'
-}
-
-function MessageRecipient:init(opts)
-  self.messages = {}
-end
-
-function MessageRecipient:receiveMessage(message)
-  table.insert(self.messages, {text=message, age=1})
-end
-
-function MessageRecipient:ageMessages()
-  for i, message in ipairs(self.messages) do
-    if message.age > 1 then
-      table.remove(self.messages, i)
-    end
-    message.age = message.age + 1
-  end
-end
-
-Mixins.MessageRecipient = MessageRecipient
 
 -- Sight !!
 local Sight = {
@@ -182,7 +154,6 @@ Mixins.PlayerActor = {
     end
     refresh()
     engine:lock()
-    player:ageMessages()
   end
 }
 
@@ -206,7 +177,6 @@ function Mixins.FungusActor:act()
           newFungus.x, newFungus.y = x, y
           self.level.addEntity(newFungus)
           self.growthsRemaining = self.growthsRemaining - 1
-          sendMessageNearby(self.level, self.x, self.y, 'The fungus is spreading!')
         end
       end
     end

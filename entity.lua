@@ -129,5 +129,5 @@ Entity.PlayerTemplate = {
   bg = Colors.black,
   maxHp = 40,
   attackValue = 10,
-  mixins = {"Movable","PlayerActor","Destructible","Attacker","MessageRecipient","InventoryHolder","SymbionUser"}
+  mixins = {"Movable","PlayerActor","Destructible","Attacker","InventoryHolder","SymbionUser"}
 }

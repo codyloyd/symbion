@@ -77,7 +77,6 @@ function Mixins.Speedy:update()
     self.life = self.life - 1
     updateUi:trigger('symbionBar', self.life/self.maxLife)
     if self.life <= 0 then
-      player:receiveMessage('OH NO! YOU KILLED '..self.name)
       player.attachedSymbion = nil
       self.kill()
     end
@@ -126,7 +125,8 @@ function Mixins.Punchy:update()
     self.life = self.life - 1
     updateUi:trigger('symbionBar', self.life/self.maxLife)
     if self.life <= 0 then
-      player:receiveMessage('OH NO! YOU KILLED '..self.name)
+      player.attachedSymbion = nil
+      self.kill()
     end
   else
     self.life = math.min(self.life + 1, self.maxLife)

@@ -201,6 +201,15 @@ screen.render = function()
           love.graphics.setColor(1,0,0)
         end
         love.graphics.draw(image, quad, dx+(entity.x-(topLeftX))*tilewidth+tilewidth/2,dy+(entity.y-(topLeftY))*tileheight+tileheight/2,r,1,1,tilewidth/2,tileheight/2)
+
+        local health = entity.hp/entity.maxHp
+        if health < 1 then
+          love.graphics.setColor(Colors.white)
+          if health < .3 then
+            love.graphics.setColor(Colors.red)
+          end
+          love.graphics.rectangle('fill', (entity.x-topLeftX)*tilewidth, tileheight+(entity.y-topLeftY)*tileheight,tilewidth*health, 2)
+        end
       end
     end
   end
@@ -244,15 +253,6 @@ screen.render = function()
   end
 
 love.graphics.setCanvas()
-love.graphics.setCanvas(messagesCanvas)
-love.graphics.clear()
-  for i,mess in ipairs(player.messages) do
-    local bottom = love.graphics.getHeight()
-    love.graphics.setColor(Colors.white)
-    love.graphics.print(mess.text, 0, bottom-16*i)
-  end
-love.graphics.setCanvas()
-
 
   function getHealthColor(hp, maxHp)
     percentage = hp/maxHp
@@ -268,7 +268,6 @@ love.graphics.setCanvas()
   -- effects(function()
     love.graphics.draw(mapCanvas, 0,0,0,2)
   -- end)
-  love.graphics.draw(messagesCanvas)
 
   -- if there is a subscreen, do not draw UI stuff
   if subscreen then

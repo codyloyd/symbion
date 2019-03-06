@@ -46,7 +46,6 @@ function love.load()
   love.window.setMode(2*screenWidth*tilewidth,2*screenHeight*tileheight)
 
   mapCanvas = love.graphics.newCanvas()
-  messagesCanvas = love.graphics.newCanvas()
   uiCanvas = love.graphics.newCanvas()
   flashCanvas = love.graphics.newCanvas()
   mapCanvas:setFilter('nearest', 'nearest')
@@ -139,19 +138,6 @@ function flashScreen(duration)
 end
 
 --helpers
-
-function sendMessage(recipient, message)
-  if recipient:hasMixin('MessageRecipient') then
-    recipient:receiveMessage(message)
-  end
-end
-
-function sendMessageNearby(level, x, y, message)
-  local entities = level.getEntitiesWithinRadius(x,y,5)
-  for _, entity in pairs(entities) do
-    sendMessage(entity, message)
-  end
-end
 
 function getNeighborPositions(centerX, centerY)
   local tiles = {}
