@@ -17,6 +17,10 @@ function Mixins.Movable:tryMove(x,y,level)
       end
       return
     end
+    if self:hasMixin('SymbionUser') and level.symbions[x..','..y] then
+      print('you stepped on a symbion!')
+      enterSymbionSelectionScreen(level.symbions[x..','..y])
+    end
     if tile and tile.isWalkable then
       self.x, self.y = x, y
       return true
@@ -49,7 +53,10 @@ function Mixins.Destructible:takeDamage(attacker, damage)
       -- switch screen LOSERRRR
       switchScreen(loseScreen)
     else
-    self.level.removeEntity(self)
+      if self.deathCallback then
+        self:deathCallback()
+      end
+      self.level.removeEntity(self)
     end
   end
 end
@@ -132,7 +139,11 @@ function SymbionUser:init(opts)
 end
 
 function SymbionUser:addSymbion(sym)
-  table.insert(self.symbions, sym)
+  if #self.symbions < self.symbionLimit then
+    table.insert(self.symbions, sym)
+    return true
+  end
+  return false
 end
 
 function SymbionUser:updateSymbions()
@@ -168,7 +179,7 @@ end
 
 function Mixins.FungusActor:act()
   if self.growthsRemaining > 0 then
-    if love.math.random() < .03 then
+    if math.random(10) < 3 then
       local xoffset, yoffset = math.random(-1, 1), math.random(-1, 1)
       if xoffset ~= 0 or yoffset ~= 0 then
         local x, y = self.x + xoffset, self.y + yoffset
@@ -266,6 +277,10 @@ function Mixins.ChelzrathActor:act()
   end
 end
 
+function Mixins.ChelzrathActor:deathCallback()
+  endGame:trigger('win')
+end
+
 Mixins.ProjectileActor = {
   name='ProjectileActor',
   groupName='Actor'
@@ -327,3 +342,31 @@ function Mixins.Exploder:tick()
     end
   end
 end
+
+Mixins.SymbionActor = {
+  name="SymbionActor",
+  groupName="Actor"
+}
+
+function Mixins.SymbionActor:deathCallback()
+  local drop = Symbion.new(Symbion.randomSymbion())
+  self.level.addSymbion(drop, self.x, self.y)
+end
+
+function Mixins.SymbionActor:act()
+  if love.math.random(10) < 6 then
+    local xoffset, yoffset = math.random(-1, 1), math.random(-1, 1)
+    if xoffset ~= 0 or yoffset ~= 0 then
+      local x, y = self.x + xoffset, self.y + yoffset
+      if self.level.isEmptyFloor(x, y) then
+        local newFungus = Entity.new(Entity.templates.fungus)
+        if math.random(10) < 3 then
+          newFungus = Entity.new(Entity.templates.plantguy)
+        end
+        newFungus.x, newFungus.y = x, y
+        self.level.addEntity(newFungus)
+      end
+    end
+  end
+end
+

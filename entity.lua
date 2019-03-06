@@ -127,7 +127,7 @@ Entity.PlayerTemplate = {
   tileid = 1,
   fg = Colors.pureWhite,
   bg = Colors.black,
-  maxHp = 40,
+  maxHp = 440,
   attackValue = 10,
   mixins = {"Movable","PlayerActor","Destructible","Attacker","InventoryHolder","SymbionUser"}
 }

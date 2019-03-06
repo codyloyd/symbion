@@ -8,6 +8,7 @@ function Level.new(opts)
   local self = {}
   self.entities = {}
   self.items = {}
+  self.symbions = {}
   self.mapStyle = opts and opts.mapStyle or 'forest'
   self.map = Map.new({mapStyle=self.mapStyle})
   self.exploredTiles = {}
@@ -57,6 +58,19 @@ function Level.new(opts)
     end
   end
 
+  function self.addSymbion(symbion, x, y)
+    self.symbions[x..','..y] = symbion
+    return true
+  end
+
+  function self.removeSymbion(symbionToRemove)
+    for key, symb in pairs(self.symbions) do
+      if symb == symbionToRemove then
+        self.symbions[key] = null
+      end
+    end
+  end
+
   function self.addItem(item, x, y)
     if self.isEmptyFloor(x, y) then
       self.items[x..','..y] = item
@@ -81,7 +95,7 @@ function Level.new(opts)
   function self.isEmptyFloor(x, y)
     local tile = self.map.getTile(x,y)
     if tile then
-      return tile.name =='floorTile' or tile.name=='islandTile' and not self.getEntityAt(x,y)
+      return (tile.name =='floorTile' or tile.name=='islandTile') and not self.getEntityAt(x,y)
     end
     return false
   end
@@ -106,6 +120,10 @@ function Level.new(opts)
       local entity = Entity.new(Entity.randomEntity())
       self.addEntityAtRandomPosition(entity)
     end
+
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
     -- -- add Items
     -- for i=1, 19 do
     --   local item = Item.new(Item.randomItem())

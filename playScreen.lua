@@ -19,11 +19,6 @@ screen.enter = function()
   gameWorld = GameWorld.new()
   player = gameWorld.player
 
-  local newSym = Symbion.new(Symbion.PunchyTemplate)
-  player:addSymbion(newSym)
-  local xnewSym = Symbion.new(Symbion.SpeedyTemplate)
-  player:addSymbion(xnewSym)
-
   -- set up game UI elements
   uiElements = {}
   uiElements.healthBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
@@ -69,6 +64,14 @@ screen.enter = function()
     end
   )
 
+  endGame = Luvent.newEvent()
+  endGame:addAction(function(winOrLose)
+    if winOrLose == 'win' then
+      switchScreen(winScreen)
+    elseif winOrLose == 'lose' then
+      switchScreen(loseScreen)
+    end
+  end)
 
 end
 
@@ -167,7 +170,19 @@ screen.render = function()
       end
     end
   end
-
+  -- render dropped symbions
+  for coords, symbion in pairs(level.symbions) do
+    x,y = tonumber(splitString(coords, ',')[1]), tonumber(splitString(coords, ',')[2])
+    if x >= topLeftX and y >= topLeftY and x < topLeftX + screenWidth and y < topLeftY + screenHeight then
+      local key = coords
+      if visibleTiles[key] then
+        local image = tiles[symbion.tileset].image
+        local quad = tiles[symbion.tileset].tiles[tonumber(symbion.tileid)]
+        love.graphics.setColor(symbion.fg)
+        love.graphics.draw(image,quad,(x-(topLeftX))*tilewidth, (y-(topLeftY))*tileheight)
+      end
+    end
+  end
 
   --render items
   for coords, item in pairs(level.items) do
@@ -350,69 +365,69 @@ screen.keypressed = function(key)
     end
   elseif key=='i' then
     -- render item list screen
-    subscreen = {}
-    local myGrid = grid({
-        x=0,
-        y=0,
-        w=love.graphics.getWidth(),
-        h=love.graphics.getHeight(),
-        rows=1,
-        cols=8,
-        margin = 8
-    })
-    local selectedItem = 0
-    local listPane = myGrid.createCell({row=0, col=0, colSpan=2, padding=12})
-    local listGrid = grid({x=listPane.x,y=listPane.y,h=listPane.h,w=listPane.w,rows=26})
-    local listItem = listGrid.createCell({padding=12})
-    local detailsPane = myGrid.createCell({row=0, col=2, colSpan=6, padding=12})
-    function subscreen.render()
-      love.graphics.setLineWidth(2)
-      love.graphics.setColor(Colors.white)
-      -- love.graphics.rectangle('line', listPane.getBorderBox())
-      -- love.graphics.rectangle('line', detailsPane.getBorderBox())
-      local fontHeight = love.graphics.getFont():getHeight()
+    -- subscreen = {}
+    -- local myGrid = grid({
+    --     x=0,
+    --     y=0,
+    --     w=love.graphics.getWidth(),
+    --     h=love.graphics.getHeight(),
+    --     rows=1,
+    --     cols=8,
+    --     margin = 8
+    -- })
+    -- local selectedItem = 0
+    -- local listPane = myGrid.createCell({row=0, col=0, colSpan=2, padding=12})
+    -- local listGrid = grid({x=listPane.x,y=listPane.y,h=listPane.h,w=listPane.w,rows=26})
+    -- local listItem = listGrid.createCell({padding=12})
+    -- local detailsPane = myGrid.createCell({row=0, col=2, colSpan=6, padding=12})
+    -- function subscreen.render()
+    --   love.graphics.setLineWidth(2)
+    --   love.graphics.setColor(Colors.white)
+    --   -- love.graphics.rectangle('line', listPane.getBorderBox())
+    --   -- love.graphics.rectangle('line', detailsPane.getBorderBox())
+    --   local fontHeight = love.graphics.getFont():getHeight()
 
-      if #player.inventory == 0 then
-        local x,y,w,h = listItem.getBorderBox()
-        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
-        love.graphics.rectangle("fill", x, y  + (h), w, h)
-        local xx,yy,ww,hh = listItem.getContentBox()
-        love.graphics.setColor(Colors.white)
-        love.graphics.rectangle("line", x, y  + (h), w, h)
-        love.graphics.setColor(Colors.white)
-        love.graphics.printf("no items", xx, y + (h) + (h/2 - fontHeight/2),ww)
-      end
-      for i,item in ipairs(player.inventory) do
-        local x,y,w,h = listItem.getBorderBox()
-        love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
-        love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
+    --   if #player.inventory == 0 then
+    --     local x,y,w,h = listItem.getBorderBox()
+    --     love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+    --     love.graphics.rectangle("fill", x, y  + (h), w, h)
+    --     local xx,yy,ww,hh = listItem.getContentBox()
+    --     love.graphics.setColor(Colors.white)
+    --     love.graphics.rectangle("line", x, y  + (h), w, h)
+    --     love.graphics.setColor(Colors.white)
+    --     love.graphics.printf("no items", xx, y + (h) + (h/2 - fontHeight/2),ww)
+    --   end
+    --   for i,item in ipairs(player.inventory) do
+    --     local x,y,w,h = listItem.getBorderBox()
+    --     love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+    --     love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
 
-        love.graphics.setColor(Colors.white)
-        love.graphics.rectangle("line", x, y  + (h*(i-1)), w, h)
-        if selectedItem + 1 == i then
-          love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
-          love.graphics.setColor(Colors.black)
-        end
-        local xx,yy,ww,hh = listItem.getContentBox()
-        love.graphics.printf(item.name, xx, y + (h*(i-1)) + (h/2 - fontHeight/2),ww)
-      end
-    end
+    --     love.graphics.setColor(Colors.white)
+    --     love.graphics.rectangle("line", x, y  + (h*(i-1)), w, h)
+    --     if selectedItem + 1 == i then
+    --       love.graphics.rectangle("fill", x, y  + (h*(i-1)), w, h)
+    --       love.graphics.setColor(Colors.black)
+    --     end
+    --     local xx,yy,ww,hh = listItem.getContentBox()
+    --     love.graphics.printf(item.name, xx, y + (h*(i-1)) + (h/2 - fontHeight/2),ww)
+    --   end
+    -- end
 
-    function subscreen.keypressed(key)
-      if key == 'j' or key == 'down' then
-        selectedItem = (selectedItem + 1) % #player.inventory
-      end
-      if key == 'k' or key == 'up' then
-        selectedItem = (selectedItem - 1) % #player.inventory
-      end
-      if key == 'return' then
-        local item = player.inventory[selectedItem + 1]
-        if item.apply then
-          item:apply()
-        end
-        table.remove(player.inventory, selectedItem+1)
-      end
-    end
+    -- function subscreen.keypressed(key)
+    --   if key == 'j' or key == 'down' then
+    --     selectedItem = (selectedItem + 1) % #player.inventory
+    --   end
+    --   if key == 'k' or key == 'up' then
+    --     selectedItem = (selectedItem - 1) % #player.inventory
+    --   end
+    --   if key == 'return' then
+    --     local item = player.inventory[selectedItem + 1]
+    --     if item.apply then
+    --       item:apply()
+    --     end
+    --     table.remove(player.inventory, selectedItem+1)
+    --   end
+    -- end
   elseif key=='s'then
     subscreen = {}
     local myGrid = grid({
@@ -483,6 +498,29 @@ function move(dx, dy)
   newY = math.max(1, math.min(mapWidth, player.y + dy))
   player:tryMove(newX, newY, gameWorld:getCurrentLevel())
   engine:unlock()
+end
+
+function enterSymbionSelectionScreen(symbion)
+    subscreen = {}
+    function subscreen.render()
+      love.graphics.setColor(Colors.black)
+      love.graphics.rectangle('fill', 96, 96, 408, 408)
+      love.graphics.setColor(Colors.white)
+      love.graphics.printf(symbion.name, 100, 100, 400, 'left')
+      love.graphics.printf(symbion.desc, 100, 124, 400, 'left')
+
+      love.graphics.printf('press ENTER to pick up '..symbion.name..' press ESC to cancel', 100, 380, 400, 'left')
+    end
+
+    function subscreen.keypressed(key)
+      if key=='return' then
+        if player:addSymbion(symbion) then
+          local level = gameWorld:getCurrentLevel()
+          level.removeSymbion(symbion)
+          subscreen = nil
+        end
+      end
+    end
 end
 
 return screen
