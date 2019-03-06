@@ -9,6 +9,7 @@ local grid = require('lib/grid')
 local screen = {}
 local gameWorld
 local subscreen
+local confirmation
 player = nil
 
 screen.enter = function()
@@ -18,7 +19,7 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  local sym = Symbion.new(Symbion.templates.Speedy3)
+  local sym = Symbion.new(Symbion.templates.HealthRegen3)
   player:addSymbion(sym)
 
   -- set up game UI elements
@@ -298,6 +299,14 @@ end
 
 
 screen.keypressed = function(key)
+  --confirmation dialog hijacks keypress functions
+  if confirmation then
+    if key =='escape' then
+      gooi.closeDialog()
+      confirmation = false
+    end
+    return
+  end
   --render subscreen keypress highjacks keypress function
   if subscreen then
     subscreen.keypressed(key)
@@ -312,7 +321,6 @@ screen.keypressed = function(key)
   end
 
   if lume.any({'1','2','3'}, function(x) return key == x end) then
-
     if not player.attachedSymbion then
       if player.symbions[tonumber(key)] and player.symbions[tonumber(key)]:apply(player) then
         updateUi:trigger('symbionName', player.attachedSymbion.name)
@@ -488,7 +496,34 @@ screen.keypressed = function(key)
       if key == 'k' or key == 'up' then
         selectedItem = (selectedItem - 1) % #player.symbions
       end
+      if key == 'x' then
+        local subscreenTemp = subscreen
+        subscreen = nil
+        confirmation = true
+        gooi.confirm({
+            text = "really remove "..player.symbions[selectedItem+1].name.."?\nThis action will kill him!",
+            ok = function()
+              player.symbions[selectedItem+1].kill()
+              confirmation = false
+            end,
+            cancel=function()
+              subscreen=subscreenTemp
+              confirmation = false
+            end
+          })
+      end
       if key == 'return' then
+        if player.attachedSymbion then
+          local attached = lume.find(player.symbions, player.attachedSymbion)
+          player.symbions[attached]:remove(player)
+        end
+        if not player.attachedSymbion then
+          if player.symbions[selectedItem + 1] and player.symbions[selectedItem + 1]:apply(player) then
+            updateUi:trigger('symbionName', player.attachedSymbion.name)
+            updateUi:trigger('symbionGui', 'show')
+            subscreen = nil
+          end
+        end
       end
     end
   end

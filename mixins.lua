@@ -38,6 +38,12 @@ function Mixins.Destructible:init(opts)
   self.maxHp = opts and opts.maxHp or 10
   self.hp = opts and opts.hp or self.maxHp
   self.defenseValue = opts and opts.defenseValue or 0
+  self.healthRegenRate = opts and opts.healthRegenRate or 0 
+end
+
+function Mixins.Destructible:updateHealth()
+  self.hp = math.min(self.maxHp, self.hp + self.healthRegenRate)
+  updateUi:trigger('healthBar', self.hp/self.maxHp)
 end
 
 function Mixins.Destructible:takeDamage(attacker, damage)
@@ -162,6 +168,9 @@ Mixins.PlayerActor = {
   act= function(self)
     if self:hasMixin('SymbionUser') then
       self:updateSymbions()
+    end
+    if self:hasMixin('Destructible') then
+      self:updateHealth()
     end
     refresh()
     engine:lock()

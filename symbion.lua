@@ -205,6 +205,20 @@ Symbion.templates.FastPunchy = {
   mixins = {"Punchy", "Speedy"},
   desc="Increases Speed 2x and increases attack 2x."
 }
+Symbion.templates.HealthRegen = {
+  mixins={"HealthRegen"},
+  desc="Allows you to regenerate health, 1hp per 2 turns"
+}
+Symbion.templates.HealthRegen2 = {
+  mixins={"HealthRegen"},
+  desc="Allows you to regenerate health, 1hp per turn",
+  healthRegenRate=1
+}
+Symbion.templates.HealthRegen3 = {
+  mixins={"HealthRegen"},
+  desc="Allows you to regenerate health, 2hp per  turn",
+  healthRegenRate=2
+}
 
 Mixins.Speedy = {
   name = 'Speedy'
@@ -237,4 +251,19 @@ end
 
 function Mixins.Punchy:remove(player)
   player.attackModifier = 1
+end
+
+Mixins.HealthRegen = {
+  name='HealthRegen'
+}
+function Mixins.HealthRegen:init(opts)
+  self.healthRegenRate = opts and opts.healthRegenRate or .5
+end
+
+function Mixins.HealthRegen:apply()
+  player.healthRegenRate = self.healthRegenRate
+end
+
+function Mixins.HealthRegen:remove()
+  player.healthRegenRate = 0
 end
