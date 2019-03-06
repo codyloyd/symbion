@@ -18,7 +18,6 @@ function Mixins.Movable:tryMove(x,y,level)
       return
     end
     if self:hasMixin('SymbionUser') and level.symbions[x..','..y] then
-      print('you stepped on a symbion!')
       enterSymbionSelectionScreen(level.symbions[x..','..y])
     end
     if tile and tile.isWalkable then

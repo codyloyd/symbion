@@ -10,6 +10,7 @@ local screen = {}
 local gameWorld
 local subscreen
 local confirmation
+local alert
 player = nil
 
 screen.enter = function()
@@ -19,7 +20,11 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  local sym = Symbion.new(Symbion.templates.HealthRegen3)
+  local sym = Symbion.new(Symbion.randomSymbion())
+  player:addSymbion(sym)
+  sym = Symbion.new(Symbion.randomSymbion())
+  player:addSymbion(sym)
+  sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
 
   -- set up game UI elements
@@ -300,6 +305,11 @@ end
 
 screen.keypressed = function(key)
   --confirmation dialog hijacks keypress functions
+  if alert then
+    gooi.closeDialog()
+    alert = false
+    return
+  end
   if confirmation then
     if key =='escape' then
       gooi.closeDialog()
@@ -537,6 +547,11 @@ function move(dx, dy)
 end
 
 function enterSymbionSelectionScreen(symbion)
+  if #player.symbions >= player.symbionLimit then
+    gooi.alert({text="you are already carrying your maximum number of symbions"})
+    alert=true
+    return
+  end
     subscreen = {}
     function subscreen.render()
       love.graphics.setColor(Colors.black)
