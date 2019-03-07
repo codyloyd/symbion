@@ -1,0 +1,12 @@
+{ "columns":20,
+ "image":"Interface.png",
+ "imageheight":144,
+ "imagewidth":320,
+ "margin":0,
+ "name":"Interface",
+ "spacing":0,
+ "tilecount":120,
+ "tileheight":24,
+ "tilewidth":16,
+ "type":"tileset"
+}

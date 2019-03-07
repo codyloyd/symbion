@@ -116,21 +116,20 @@ function Level.new(opts)
   if opts.mapStyle == "boss" then
     self.addEntityAtRandomPosition(Entity.new(Entity.templates.Chelzrath))
   else
-    for i=1,17 do
-      local entity = Entity.new(Entity.randomEntity())
-      self.addEntityAtRandomPosition(entity)
+    for i=1, 4 do
+      if math.random(10) < 8 then
+        self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
+      end
     end
-
-    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
-    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
-    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
-    -- -- add Items
-    -- for i=1, 19 do
-    --   local item = Item.new(Item.randomItem())
-    --   self.addItemAtRandomPosition(item)
-    -- end
-
   end
+
+  local enemies = 20
+  if opts.mapStyle == "forest" then enemies = 10 end
+  for i=1,enemies do
+    local entity = Entity.new(Entity.randomEntity())
+    self.addEntityAtRandomPosition(entity)
+  end
+
   -- add downstairs
   self.downstairs = {}
   self.downstairs.x, self.downstairs.y = self.getRandomFloorPosition()

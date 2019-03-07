@@ -32,6 +32,7 @@ function love.load()
   flashScreenDuration = -1
 
   font = love.graphics.setNewFont('font/CP437.ttf', 16)
+  medFont = love.graphics.setNewFont('font/CP437.ttf', 24)
   bigFont = love.graphics.newFont('font/CP437.ttf', 48)
   charWidth = love.graphics.getFont():getWidth('e')
   charHeight = love.graphics.getFont():getHeight('e')
@@ -57,8 +58,8 @@ function love.load()
   uiCanvas:setFilter('nearest', 'nearest')
   --GOOI stuff
   style = {
-    font=font,
-    bgColor = Colors.black,
+    font=medFont,
+    bgColor = {0,0,0,0},
     fgColor = Colors.white,
     radius = 2, -- raw pixels
     innerRadius = 2, -- raw pixels

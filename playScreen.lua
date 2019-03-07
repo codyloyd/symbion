@@ -20,13 +20,8 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  local sym = Symbion.new(Symbion.templates.kill)
-  player:addSymbion(sym)
   sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
-  sym = Symbion.new(Symbion.randomSymbion())
-  player:addSymbion(sym)
-
 
   -- set up game UI elements
   uiElements = {}
@@ -34,7 +29,7 @@ screen.enter = function()
   uiElements.symbionLabel = gooi.newLabel({text='Symbion'}):left():fg(Colors.white)
   uiElements.symbionBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
 
-  topLeft = gooi.newPanel({x=0,y=0,w = 300, h = 60, layout="grid 3x3"})
+  topLeft = gooi.newPanel({x=0,y=0,w = 300, h = 80, layout="grid 3x3"})
   topLeft
   :setColspan(1,2,2)
   :setColspan(2,2,2)
@@ -261,22 +256,22 @@ screen.render = function()
       local life = sym.life/sym.maxLife
       if player.attachedSymbion == sym then
         love.graphics.setColor(sym.fg)
-        love.graphics.rectangle('fill',4, i*30,26,26)
+        love.graphics.rectangle('fill',8, i*30,26,26)
         love.graphics.setColor(Colors.white)
-        love.graphics.rectangle('line',4, i*30,25,26)
+        love.graphics.rectangle('line',8, i*30,25,26)
         local image = tiles[sym.tileset].image
         local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
         love.graphics.setColor(Colors.black)
-        love.graphics.draw(image,quad,8,i*30)
+        love.graphics.draw(image,quad,12,i*30)
       else
         love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
-        love.graphics.rectangle('fill',5, i*30,25,25)
+        love.graphics.rectangle('fill',9, i*30,25,25)
         love.graphics.setColor(Colors.white)
-        love.graphics.rectangle('line',4, i*30,26,26)
+        love.graphics.rectangle('line',8, i*30,26,26)
         local image = tiles[sym.tileset].image
         local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
         love.graphics.setColor(sym.fg)
-        love.graphics.draw(image,quad,8,i*30)
+        love.graphics.draw(image,quad,12,i*30)
       end
 
       if life < .4 then
@@ -284,7 +279,7 @@ screen.render = function()
       else
         love.graphics.setColor(Colors.white)
       end
-      love.graphics.rectangle('fill',5,(i*30)+23,life*24,2)
+      love.graphics.rectangle('fill',9,(i*30)+23,life*24,2)
     end
   end
 
@@ -346,7 +341,6 @@ screen.keypressed = function(key)
   end
 
   if key=='q'then
-    fireworks(100,100)
   end
 
   if lume.any({'1','2','3'}, function(x) return key == x end) then
@@ -363,9 +357,31 @@ screen.keypressed = function(key)
   end
 
   if key=='return' then 
-    switchScreen(winScreen)
+    confirmation = true
+    gooi.confirm({
+        text = "really instawin??",
+        ok = function()
+          fadeOut(40, function() 
+            endGame:trigger('win')
+          end)
+        end,
+        cancel=function()
+          confirmation = false
+        end
+      })
   elseif key=='escape' then
-    switchScreen(loseScreen)
+    confirmation = true
+    gooi.confirm({
+        text = "really instalose??",
+        ok = function()
+          fadeOut(40, function() 
+            endGame:trigger('lose')
+          end)
+        end,
+        cancel=function()
+          confirmation = false
+        end
+      })
   elseif key=='up' or key=='k' then
     move(0,-1)
   elseif key=='down' or key=='j' then
@@ -486,14 +502,18 @@ screen.keypressed = function(key)
     })
     local selectedItem = 0
     local listPane = myGrid.createCell({row=0, col=0, colSpan=2, padding=12})
-    local listGrid = grid({x=listPane.x,y=listPane.y,h=listPane.h,w=listPane.w,rows=26})
+    local listGrid = grid({x=listPane.x,y=listPane.y,h=listPane.h,w=listPane.w,rows=16})
     local listItem = listGrid.createCell({padding=12})
+    local helpBox = listGrid.createCell({row=8, rowSpan=3})
     local detailsPane = myGrid.createCell({row=0, col=2, colSpan=6, padding=12})
     function subscreen.render()
       love.graphics.setLineWidth(2)
-      love.graphics.setColor(Colors.white)
       -- love.graphics.rectangle('line', listPane.getBorderBox())
-      -- love.graphics.rectangle('line', detailsPane.getBorderBox())
+      love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+      love.graphics.rectangle('fill', detailsPane.getBorderBox())
+      love.graphics.setColor(Colors.white)
+      love.graphics.rectangle('line', detailsPane.getBorderBox())
+      love.graphics.setFont(medFont)
       local fontHeight = love.graphics.getFont():getHeight()
 
       if #player.symbions == 0 then
@@ -520,9 +540,26 @@ screen.keypressed = function(key)
         local xx,yy,ww,hh = listItem.getContentBox()
         love.graphics.printf(item.name, xx, y + (h*(i-1)) + (h/2 - fontHeight/2),ww)
       end
-      local x,y,w,h = detailsPane.getContentBox()
+      -- print help
+      local helptext = [[
+press ENTER to equip
+press x to drop
+      ]]
+      local x,y,w,h = helpBox.getContentBox()
+      love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
+      love.graphics.rectangle("fill", x, y, w, h)
       love.graphics.setColor(Colors.white)
-      love.graphics.printf(player.symbions[selectedItem+1].desc, x,y,w,'left')
+      love.graphics.printf(helptext, x, y,w)
+      -- print description
+      x,y,w,h = detailsPane.getContentBox()
+      local selSym = player.symbions[selectedItem+1]
+      local image = tiles[selSym.tileset].image
+      local quad = tiles[selSym.tileset].tiles[tonumber(selSym.tileid)]
+      love.graphics.setColor(Colors.white)
+      love.graphics.printf(selSym.desc, x,y,w,'left')
+      love.graphics.setColor(selSym.fg)
+      love.graphics.draw(image, quad, x, y + 24, 0, 5, 5)
+      love.graphics.setFont(font)
     end
 
     function subscreen.keypressed(key)
@@ -574,7 +611,9 @@ end
 
 function targetSomething(range, callback)
   targetingMode = true
+  targeting.range = range
   targeting.x, targeting.y = player.x, player.y
+  targeting.originX, targeting.originY = player.x, player.y
   if callback then
     targeting.callback = callback
   end
@@ -584,14 +623,17 @@ end
 targeting = {}
 targeting.tileset = "Interface"
 targeting.tileid = 6
+targeting.originX = 0
+targeting.originY = 0
 targeting.x = 0
 targeting.y = 0
+targeting.range = 10
 targeting.callback = function()end
 
 function targeting.keypressed(key)
   local move = function(dx,dy)
-    newX = math.max(1, math.min(mapWidth, targeting.x + dx))
-    newY = math.max(1, math.min(mapWidth, targeting.y + dy))
+    newX = math.max(targeting.originX - targeting.range, math.min(targeting.originX + targeting.range, targeting.x + dx))
+    newY = math.max(targeting.originY - targeting.range, math.min(targeting.originY + targeting.range, targeting.y + dy))
     targeting.x, targeting.y = newX, newY 
   end
   if key=='escape' then
@@ -620,7 +662,7 @@ end
 
 function enterSymbionSelectionScreen(symbion)
   if #player.symbions >= player.symbionLimit then
-    gooi.alert({text="you are already carrying\nyour maximum number of symbions"})
+    gooi.alert({text=symbion.name.."\n"..symbion.desc.."\n  \nyou are already carrying\nyour maximum number of symbions"})
     alert=true
     return
   end

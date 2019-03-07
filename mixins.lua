@@ -138,7 +138,7 @@ local SymbionUser = {
 }
 
 function SymbionUser:init(opts)
-  self.symbionLimit = opts and opts.symbionLimit or 3
+  self.symbionLimit = opts and opts.symbionLimit or 5
   self.symbions = {}
   self.attachedSymbion = nil
 end
