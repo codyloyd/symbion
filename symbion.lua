@@ -79,7 +79,7 @@ Symbion.new = function(opts)
   end
 
   function self:apply(player)
-    if self.life/self.maxLife > .4 then
+    if self.life/self.maxLife > .7 then
       player.attachedSymbion = self
       self.isAttached = true
       lume.each(self.applyFunctions, function(fun)

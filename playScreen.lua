@@ -263,6 +263,15 @@ screen.render = function()
         local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
         love.graphics.setColor(Colors.black)
         love.graphics.draw(image,quad,12,i*30)
+      elseif life <= .7 then
+        love.graphics.setColor(Colors.darkGray)
+        love.graphics.rectangle('fill',8, i*30,26,26)
+        love.graphics.setColor(Colors.white)
+        love.graphics.rectangle('line',8, i*30,25,26)
+        local image = tiles[sym.tileset].image
+        local quad = tiles[sym.tileset].tiles[tonumber(sym.tileid)]
+        love.graphics.setColor(Colors.black)
+        love.graphics.draw(image,quad,12,i*30)
       else
         love.graphics.setColor(Colors.addAlpha(Colors.black, .8))
         love.graphics.rectangle('fill',9, i*30,25,25)
@@ -559,6 +568,15 @@ press x to drop
       love.graphics.printf(selSym.desc, x,y,w,'left')
       love.graphics.setColor(selSym.fg)
       love.graphics.draw(image, quad, x, y + 24, 0, 5, 5)
+      love.graphics.setColor(Colors.white)
+      local life = selSym.life/selSym.maxLife
+      love.graphics.printf(selSym.name..'\'s life force is '..life*100, x, y + 160, w, 'left')
+      if life < .7 then
+        love.graphics.printf("you may not equip "..selSym.name..' until his life-force has recovered', x, y + 188, w, 'left')
+      end
+      if selSym.ability then
+        love.graphics.printf("While equipped, press A to use "..selSym.name.."\'s special ability", x, y + 224, w, 'left')
+      end
       love.graphics.setFont(font)
     end
 
