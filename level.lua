@@ -131,12 +131,16 @@ function Level.new(opts)
   end
 
   -- add downstairs
-  self.downstairs = {}
-  self.downstairs.x, self.downstairs.y = self.getRandomFloorPosition()
-  self.map.setTile(self.downstairs.x, self.downstairs.y, Tile.stairDownTile)
+  if opts.mapStyle ~= "boss" then
+    self.downstairs = {}
+    self.downstairs.x, self.downstairs.y = self.getRandomFloorPosition()
+    self.map.setTile(self.downstairs.x, self.downstairs.y, Tile.stairDownTile)
+  end
   -- add upstairs
-  self.upstairs = {}
-  self.upstairs.x, self.upstairs.y = self.getRandomFloorPosition()
-  self.map.setTile(self.upstairs.x, self.upstairs.y, Tile.stairUpTile)
+  if opts.mapStyle ~= "forest" then 
+    self.upstairs = {}
+    self.upstairs.x, self.upstairs.y = self.getRandomFloorPosition()
+    self.map.setTile(self.upstairs.x, self.upstairs.y, Tile.stairUpTile)
+  end 
   return self
 end

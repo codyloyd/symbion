@@ -178,97 +178,119 @@ Symbion.randomSymbion = function()
       keys[#keys+1] = key --Store keys in another table
     end
   end
-  index = keys[math.random(1, #keys)]
-  return Symbion.templates[index]
+
+  weights = lume.reduce(keys, function(a,b) 
+    a[b] = Symbion.templates[b].weight
+    return a
+  end, {})
+  local selected = lume.weightedchoice(weights)
+  return Symbion.templates[selected]
 end
 
 Symbion.templates.Speedy = {
   mixins = {"Speedy"},
-  desc="Increases speed 2x"
+  desc="Increases speed 2x",
+  weight = 10
 }
 Symbion.templates.Speedy2 = {
   mixins = {"Speedy"},
   desc="Increases speed 3x",
-  speedModifier=3
+  speedModifier=3,
+  weight = 8
 }
 Symbion.templates.Speedy3 = {
   mixins = {"Speedy","Punchy"},
   desc="Increases speed 4x, but lowers attack power by 25%",
   speedModifier=4,
-  attackModifier=.75
+  attackModifier=.75,
+  weight = 7
 }
 Symbion.templates.Speedy4 = {
   mixins = {"Speedy","Punchy"},
   desc="Increases speed 6x, but lowers attack power by 75%",
   speedModifier=6,
-  attackModifier=.25
+  attackModifier=.25,
+  weight = 4
 }
 Symbion.templates.Punchy = {
   mixins = {"Punchy"},
-  desc="increases attack power 2x"
+  desc="increases attack power 2x",
+  weight = 10
 }
 Symbion.templates.Punchy2 = {
   mixins = {"Punchy"},
   desc="increases attack power 3x",
-  attackModifier=3
+  attackModifier=3,
+  weight = 8
 }
 Symbion.templates.Punchy3 = {
   mixins = {"Punchy", "Speedy"},
   desc="increases attack power 4x, lowers speed by 25%",
   attackModifier=4,
-  speedModifier=.75
+  speedModifier=.75,
+  weight = 7
 }
 Symbion.templates.FastPunchy = {
   mixins = {"Punchy", "Speedy"},
-  desc="Increases Speed 2x and increases attack 2x."
+  desc="Increases Speed 2x and increases attack 2x.",
+  weight = 3
 }
 Symbion.templates.HealthRegen = {
   mixins={"HealthRegen"},
-  desc="Allows you to regenerate health, 1hp per 2 turns"
+  desc="Allows you to regenerate health, 1hp per 2 turns",
+  weight = 9
 }
 Symbion.templates.HealthRegen2 = {
   mixins={"HealthRegen"},
   desc="Allows you to regenerate health, 1hp per turn",
-  healthRegenRate=1
+  healthRegenRate=1,
+  weight = 6
 }
 Symbion.templates.HealthRegen3 = {
   mixins={"HealthRegen"},
   desc="Allows you to regenerate health, 2hp per  turn",
-  healthRegenRate=2
+  healthRegenRate=2,
+  weight = 4
 }
 Symbion.templates.stunner = {
   mixins = {"Stun"},
-  desc="stuns enemies adjacent to you for 4 turns"
+  desc="stuns enemies adjacent to you for 4 turns",
+  weight = 7
 }
 Symbion.templates.stunner2 = {
   mixins = {"Stun"},
   desc="stuns enemies adjacent to you for 5 turns",
-  stunDuration = 5
+  stunDuration = 5,
+  weight = 5
 }
 Symbion.templates.stunner3 = {
   mixins = {"Stun"},
   desc="stuns enemies adjacent to you for 6 turns",
-  stunDuration = 6
+  stunDuration = 6,
+  weight = 3
 }
 Symbion.templates.stunner4 = {
   mixins={"Stun"},
   desc="stuns enemies that are within 3 spaces you for 8 turns",
   abilityCost = 12,
   stunDuration = 8,
-  stunRadius = 3
+  stunRadius = 3,
+  weight = 2
 }
 Symbion.templates.kill = {
   mixins={'Fireball'},
   desc="allows you to shoot a weak fireball within a range of 2 squares",
   fireballDamage = 6,
-  fireballRange = 2
+  fireballRange = 2,
+  weight = 8
 }
 Symbion.templates.kill2 = {
   mixins={'Fireball'},
   desc="allows you to shoot a fairly powerful fireball within a range of 3 squares",
   abilityCost = 8,
   fireballDamage = 16,
-  fireballRange = 3
+  fireballRange = 3,
+  weight = 5
 }
 Symbion.templates.kill3 = {
   mixins={'Fireball', 'Speedy'},
@@ -276,12 +298,14 @@ Symbion.templates.kill3 = {
   abilityCost = 8,
   speedModifier = .5,
   fireballDamage = 36,
-  fireballRange = 4
+  fireballRange = 4,
+  weight = 2
 }
 Symbion.templates.shooter = {
   mixins={'ProjectileShooter'},
   desc="allows you to shoot projectiles in every direction",
-  projectileSpeed = 2000
+  projectileSpeed = 2000,
+  weight = 5
 }
 
 
