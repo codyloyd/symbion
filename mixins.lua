@@ -330,6 +330,12 @@ function Mixins.ProjectileActor:act()
   if target and target:hasMixin('Destructible') then
     target:takeDamage(self, 1)
     self.level.removeEntity(self)
+    local topLeftX = math.max(1, player.x - (screenWidth / 2))
+    local topLeftX = math.min(topLeftX, mapWidth - screenWidth)
+    local topLeftY = math.max(1, player.y - (screenHeight / 2))
+    local topLeftY = math.min(topLeftY, mapHeight - screenHeight)
+
+    fireworks((self.x-topLeftX)*2*tilewidth+tilewidth,(self.y-topLeftY)*2*tileheight+tileheight, self.fg,100,3,15)
     return true
   end
 
@@ -346,7 +352,7 @@ Mixins.Exploder = {
 }
 
 function Mixins.Exploder:init(opts)
-  self.life = opts and opts.life or 4
+  self.life = opts and opts.life or math.random(6)
 end
 
 function Mixins.Exploder:tick()
@@ -366,6 +372,13 @@ function Mixins.Exploder:tick()
         end
       end
     end
+    local topLeftX = math.max(1, player.x - (screenWidth / 2))
+    local topLeftX = math.min(topLeftX, mapWidth - screenWidth)
+    local topLeftY = math.max(1, player.y - (screenHeight / 2))
+    local topLeftY = math.min(topLeftY, mapHeight - screenHeight)
+
+    fireworks((self.x-topLeftX)*2*tilewidth+tilewidth,(self.y-topLeftY)*2*tileheight+tileheight, self.fg,400,2,25)
+    self.level.removeEntity(self)
   end
 end
 

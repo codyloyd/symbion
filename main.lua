@@ -164,10 +164,13 @@ function fadeOut(speed,callback)
   fadeCallback = callback
 end
 
-function fireworks(x,y,c)
+function fireworks(x,y,c,s,l,n)
   local color = c or Colors.white
-  for i=1,55 do
-    particles.new(x,y,1,760,Colors.vary(color, 50))
+  local speed = s or 760
+  local life = l or 1
+  local num = n or 50
+  for i=1,num do
+    particles.new(x,y,life,speed,Colors.vary(color, 50),num)
   end
 end
 
