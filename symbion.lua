@@ -235,21 +235,27 @@ Symbion.templates.FastPunchy = {
   desc="Increases Speed 2x and increases attack 2x.",
   weight = 3
 }
-Symbion.templates.HealthRegen = {
-  mixins={"HealthRegen"},
-  desc="Allows you to regenerate health, 1hp per 2 turns",
-  weight = 9
+Symbion.templates.PunchyRegen = {
+  mixins={"HealthRegen", "Punchy"},
+  desc="Increases Attack Power 2x and egenerates your health, 1hp per 2 turns",
+  weight = 6
 }
 Symbion.templates.HealthRegen2 = {
   mixins={"HealthRegen"},
   desc="Allows you to regenerate health, 1hp per turn",
   healthRegenRate=1,
-  weight = 6
+  weight = 12 
 }
 Symbion.templates.HealthRegen3 = {
   mixins={"HealthRegen"},
   desc="Allows you to regenerate health, 2hp per  turn",
   healthRegenRate=2,
+  weight = 8
+}
+Symbion.templates.HealthRegen4 = {
+  mixins={"HealthRegen"},
+  desc="Allows you to regenerate health, 3hp per  turn",
+  healthRegenRate=3,
   weight = 4
 }
 Symbion.templates.stunner = {
@@ -279,9 +285,9 @@ Symbion.templates.stunner4 = {
 }
 Symbion.templates.kill = {
   mixins={'Fireball'},
-  desc="allows you to shoot a weak fireball within a range of 2 squares",
+  desc="allows you to shoot a weak fireball within a range of 3 squares",
   fireballDamage = 6,
-  fireballRange = 2,
+  fireballRange = 3,
   weight = 8
 }
 Symbion.templates.kill2 = {
@@ -290,6 +296,14 @@ Symbion.templates.kill2 = {
   abilityCost = 8,
   fireballDamage = 16,
   fireballRange = 3,
+  weight = 5
+}
+Symbion.templates.kill2 = {
+  mixins={'Fireball'},
+  desc="allows you to shoot a weak powerful fireball within a range of 6 squares",
+  abilityCost = 8,
+  fireballDamage = 8,
+  fireballRange = 4,
   weight = 5
 }
 Symbion.templates.kill3 = {
@@ -305,7 +319,7 @@ Symbion.templates.shooter = {
   mixins={'ProjectileShooter'},
   desc="allows you to shoot projectiles in every direction",
   projectileSpeed = 2000,
-  weight = 5
+  weight = 8
 }
 
 
