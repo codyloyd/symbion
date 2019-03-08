@@ -117,8 +117,9 @@ function Level.new(opts)
   if opts.mapStyle == "boss" then
     self.addEntityAtRandomPosition(Entity.new(Entity.templates.Chelzrath))
   else
-    for i=1, 4 do
-      if math.random(10) < 8 then
+    self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
+    for i=1, 2 do
+      if math.random(10) < 5 then
         self.addEntityAtRandomPosition(Entity.new(Entity.templates.symbionEgg))
       end
     end

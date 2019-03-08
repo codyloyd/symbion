@@ -22,7 +22,7 @@ function GameWorld.new()
 
     else
       local levelStyle = 'dungeon'
-      if (self.currentLevel + 1 > 2) then levelStyle = 'cave' end
+      if (self.currentLevel + 1 > 3) then levelStyle = 'cave' end
       if (self.currentLevel + 1 == self.bottomLevel) then levelStyle = 'boss' end
       self.levels[self.currentLevel+1] = Level.new({mapStyle=levelStyle, num=self.currentLevel})
     end

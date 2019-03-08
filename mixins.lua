@@ -336,7 +336,7 @@ function Mixins.ProjectileActor:act()
   if self:hasMixin('playerProjectile') then
     target = level.getEntityAt(x,y)
   else
-    if player.x == x and player.y == y then
+    if player.x == x and player.y == y and gameWorld:getCurrentLevel() == self.level then
       target = player
     end
   end

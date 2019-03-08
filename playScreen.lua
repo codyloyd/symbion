@@ -20,8 +20,7 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  -- sym = Symbion.new(Symbion.randomSymbion())
-  local sym = Symbion.new(Symbion.templates.kill3)
+  sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
 
   -- set up game UI elements
@@ -363,7 +362,7 @@ screen.keypressed = function(key)
   if key=='q'then
   end
 
-  if lume.any({'1','2','3'}, function(x) return key == x end) then
+  if lume.any({'1','2','3','4','5'}, function(x) return key == x end) then
     if not player.attachedSymbion then
       if player.symbions[tonumber(key)] and player.symbions[tonumber(key)]:apply(player) then
         updateUi:trigger('symbionName', player.attachedSymbion.name)
