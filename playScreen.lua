@@ -20,7 +20,8 @@ screen.enter = function()
 
   gameWorld = GameWorld.new()
   player = gameWorld.player
-  sym = Symbion.new(Symbion.randomSymbion())
+  -- sym = Symbion.new(Symbion.randomSymbion())
+  local sym = Symbion.new(Symbion.templates.kill3)
   player:addSymbion(sym)
 
   -- set up game UI elements
@@ -247,6 +248,8 @@ screen.render = function()
     local quad = tiles[targeting.tileset].tiles[tonumber(targeting.tileid)]
     love.graphics.setColor(Colors.pureWhite)
     love.graphics.draw(image, quad, (targeting.x-topLeftX)*tilewidth, (targeting.y-topLeftY)*tileheight)
+      love.graphics.setColor(Colors.white)
+      love.graphics.printf('direction keys to target, ENTER to trigger, ESC to cancel', 0, love.graphics.getHeight()/2-28, love.graphics.getWidth()/2, 'center')
   end
 
 
@@ -290,6 +293,14 @@ screen.render = function()
       end
       love.graphics.rectangle('fill',9,(i*30)+23,life*24,2)
     end
+    if player.attachedSymbion and player.attachedSymbion.ability and not targetingMode then
+      love.graphics.setColor(Colors.white)
+      love.graphics.printf('press A to trigger ability', 0, love.graphics.getHeight()/2-28, love.graphics.getWidth()/2, 'center')
+    end
+  end
+
+  if player.numMoves < 25 then
+    love.graphics.printf('press ? for help', 0, 4, love.graphics.getWidth()/2-4, 'right')
   end
 
 love.graphics.setCanvas()
@@ -366,31 +377,15 @@ screen.keypressed = function(key)
   end
 
   if key=='return' then 
-    confirmation = true
-    gooi.confirm({
-        text = "really instawin??",
-        ok = function()
-          fadeOut(40, function() 
-            endGame:trigger('win')
-          end)
-        end,
-        cancel=function()
-          confirmation = false
-        end
-      })
   elseif key=='escape' then
-    confirmation = true
-    gooi.confirm({
-        text = "really instalose??",
-        ok = function()
-          fadeOut(40, function() 
-            endGame:trigger('lose')
-          end)
-        end,
-        cancel=function()
-          confirmation = false
-        end
-      })
+    if player.attachedSymbion then
+      local attached = lume.find(player.symbions, player.attachedSymbion)
+      player.symbions[attached]:remove(player)
+      updateUi:trigger('symbionGui', 'hide')
+    end
+    if targetingMode then
+      targetingMode = false
+    end 
   elseif key=='up' or key=='k' then
     move(0,-1)
   elseif key=='down' or key=='j' then
@@ -421,10 +416,21 @@ screen.keypressed = function(key)
     end
   elseif key == '.' then
     engine:unlock()
+  elseif key=='/'and  (love.keyboard.isDown("rshift") or love.keyboard.isDown("lshift")) then
+    --helptext
+    subscreen = {}
+    function subscreen.render()
+      love.graphics.setColor(Colors.black)
+      love.graphics.rectangle("fill",0,0,love.graphics.getWidth(),love.graphics.getHeight())
+      love.graphics.setColor(Colors.pureWhite)
+      love.graphics.draw(helpScreen, 7*tilewidth, 0)
+    end
+    function subscreen.keypressed()
+      subscreen = nil
+    end
   elseif key=='a' then
     if player.attachedSymbion and player.attachedSymbion.ability then
       player.attachedSymbion:ability(player)
-      engine:unlock()
     end
   elseif key=='g' then
     -- pick item up

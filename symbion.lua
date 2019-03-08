@@ -105,7 +105,7 @@ Symbion.colors = {
   Colors.lightGray,
   Colors.brown,
   Colors.lightBrown,
-  Colors.red,
+  Colors.darkRed,
   Colors.orange,
   Colors.yellow,
   Colors.lightGreen,
@@ -382,6 +382,7 @@ function Mixins.ProjectileShooter:ability(player)
       end
     end
   end
+      engine:unlock()
 end
 
 Mixins.Stun = {
@@ -400,6 +401,7 @@ function Mixins.Stun:ability(player)
   lume.each(entities, function(entity)
     entity:stun(self.stunDuration)
   end)
+  engine:unlock()
 end
 
 Mixins.Fireball = {
@@ -423,6 +425,7 @@ function Mixins.Fireball:ability(player)
 
       fireworks((x-topLeftX)*2*tilewidth+tilewidth,(y-topLeftY)*2*tileheight+tileheight, target.fg)
       target:takeDamage(player, self.fireballDamage)
+      engine:unlock()
     end
   end)
 end

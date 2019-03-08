@@ -162,9 +162,11 @@ Mixins.SymbionUser = SymbionUser
 -- Actors!!
 
 Mixins.PlayerActor = {
+  numMoves = 0,
   name= 'PlayerActor',
   groupName= 'Actor',
   act= function(self)
+    self.numMoves = self.numMoves + 1
     if self:hasMixin('SymbionUser') then
       self:updateSymbions()
     end
@@ -262,7 +264,7 @@ function Mixins.PlantActor:act()
       elseif math.random(10) < 5 then
         local newProjectile = Entity.new(Entity.templates.projectile) 
         newProjectile.direction = {x,y}
-        newProjectile.x, newProjectile.y = self.x + newProjectile.direction[1], self.y + newProjectile.direction[2]
+        newProjectile.x, newProjectile.y = self.x, self.y 
         level.addEntity(newProjectile)
       end
     end
@@ -275,18 +277,29 @@ Mixins.ChelzrathActor = {
   groupName = 'Actor'
 }
 
+function Mixins.ChelzrathActor:init()
+  self.numberOfTurns = 0
+end
+
 function Mixins.ChelzrathActor:act()
+  self.numberOfTurns = self.numberOfTurns + 1
+  if self.numberOfTurns % 24 == 1 then
+    local x,y = self.level.getRandomFloorPosition()
+    -- self:tryMove(x,y,self.level)
+  end
   local level = self.level
   for x=-1,1 do
     for y=-1,1 do
       if x == 0 and y == 0 then
+      elseif self.numberOfTurns % 2 == 0 and (x == 0 or y == 0) then
+      elseif self.numberOfTurns % 2 == 1 and (math.abs(x) == math.abs(y)) then
       else
         local newProjectile = Entity.new(Entity.templates.projectile) 
         if math.random(10) < 2 then
           newProjectile = Entity.new(Entity.templates.bomb) 
         end
         newProjectile.direction = {x,y}
-        newProjectile.x, newProjectile.y = self.x + newProjectile.direction[1], self.y + newProjectile.direction[2]
+        newProjectile.x, newProjectile.y = self.x, self.y
         level.addEntity(newProjectile)
       end
     end

@@ -49,6 +49,8 @@ function love.load()
   tiles.FX_Projectiles = loadTileset('img/FX_Projectiles.json')
   tiles.Interface = loadTileset('img/Interface.json')
 
+  helpScreen = love.graphics.newImage('img/Help.png')
+
   love.window.setMode(2*screenWidth*tilewidth,2*screenHeight*tileheight)
 
   mapCanvas = love.graphics.newCanvas()
@@ -173,6 +175,7 @@ function fireworks(x,y,c,s,l,n)
     particles.new(x,y,life,speed,Colors.vary(color, 50),num)
   end
 end
+
 
 --helpers
 

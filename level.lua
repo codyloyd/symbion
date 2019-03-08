@@ -12,6 +12,7 @@ function Level.new(opts)
   self.mapStyle = opts and opts.mapStyle or 'forest'
   self.map = Map.new({mapStyle=self.mapStyle})
   self.exploredTiles = {}
+  self.num = opts.num
 
   function self.getEntityAt(x,y) 
     for _,entity in pairs(self.entities) do
@@ -100,7 +101,7 @@ function Level.new(opts)
     return false
   end
 
-  function self.getRandomFloorPosition()
+  function self.getRandomFloorPosition(xx)
     local x, y
     repeat
       x, y = math.random(1,self.map.width), math.random(1,self.map.height)
@@ -126,7 +127,7 @@ function Level.new(opts)
   local enemies = 20
   if opts.mapStyle == "forest" then enemies = 10 end
   for i=1,enemies do
-    local entity = Entity.new(Entity.randomEntity())
+    local entity = Entity.new(Entity.randomEntity(self.num))
     self.addEntityAtRandomPosition(entity)
   end
 

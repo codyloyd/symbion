@@ -77,15 +77,21 @@ Entity.new = function(opts)
   return self
 end
 
-Entity.randomEntity = function()
+Entity.randomEntity = function(level)
+  local leveledTempates = lume.filter(Entity.templates, function(e)
+    local lowerBound = tonumber(e.lowestLevel) or 0
+    local higherBound =  tonumber(e.highestLevel) or 100
+    return level >= lowerBound and level <= higherBound
+  end, true)
   local keys = {}
-  for key, value in pairs(Entity.templates) do 
+  for key, value in pairs(leveledTempates) do 
     if not value.noRandom then
       keys[#keys+1] = key --Store keys in another table
     end
   end
-  index = keys[math.random(1, #keys)]
-  return Entity.templates[index]
+  local index = keys[math.random(1, #keys)]
+  local ent =  Entity.templates[index]
+  return ent
 end
 
   -- load items from org file
