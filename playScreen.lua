@@ -538,7 +538,9 @@ screen.keypressed = function(key)
         love.graphics.setColor(Colors.white)
         love.graphics.rectangle("line", x, y  + (h), w, h)
         love.graphics.setColor(Colors.white)
-        love.graphics.printf("no items", xx, y + (h) + (h/2 - fontHeight/2),ww)
+        love.graphics.printf("no symbions", xx, y + (h) + (h/2 - fontHeight/2),ww)
+        love.graphics.setFont(font)
+        return
       end
       for i,item in ipairs(player.symbions) do
         local x,y,w,h = listItem.getBorderBox()
