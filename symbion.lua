@@ -61,7 +61,6 @@ Symbion.new = function(opts)
   function self:update()
     if self.isAttached then
       self.life = self.life - 1
-      updateUi:trigger('symbionBar', self.life/self.maxLife)
       if self.life <= 0 then
         player.attachedSymbion = nil
         self.kill()
@@ -73,7 +72,6 @@ Symbion.new = function(opts)
 
   function self.kill()
     self.dead = true;
-    updateUi:trigger('symbionGui', 'hide')
     self:remove(player)
     lume.remove(player.symbions, self)
   end

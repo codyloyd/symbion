@@ -23,51 +23,6 @@ screen.enter = function()
   sym = Symbion.new(Symbion.randomSymbion())
   player:addSymbion(sym)
 
-  -- set up game UI elements
-  uiElements = {}
-  uiElements.healthBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
-  uiElements.symbionLabel = gooi.newLabel({text='Symbion'}):left():fg(Colors.white)
-  uiElements.symbionBar = gooi.newBar({value=1}):bg(Colors.black):fg(Colors.white)
-
-  topLeft = gooi.newPanel({x=0,y=0,w = 300, h = 80, layout="grid 3x3"})
-  topLeft
-  :setColspan(1,2,2)
-  :setColspan(2,2,2)
-  :setColspan(3,2,2)
-  :add(
-      gooi.newLabel({text='Health'}):left():fg(Colors.white),
-      uiElements.healthBar,
-      uiElements.symbionLabel,
-      uiElements.symbionBar
-  ):setGroup('ui')
-  uiElements.symbionBar:setVisible(false)
-  uiElements.symbionLabel:setVisible(false)
-
-  -- event for updating the UI
-  updateUi = Luvent.newEvent()
-  updateUi:addAction(
-    function(uiElement, payload)
-      if uiElements[uiElement] then
-        uiElements[uiElement].value = payload
-      end
-      if uiElement == 'healthBar' and payload < .6 then
-        uiElements[uiElement]:fg(Colors.red)
-      end
-      if uiElement == 'symbionGui' and payload == 'show' then
-        uiElements.symbionBar.value = player.attachedSymbion.life/player.attachedSymbion.maxLife
-        uiElements.symbionBar:setVisible(true)
-        uiElements.symbionLabel:setVisible(true)
-      end
-      if uiElement == 'symbionGui' and payload == 'hide' then
-        uiElements.symbionBar:setVisible(false)
-        uiElements.symbionLabel:setVisible(false)
-      end
-      if uiElement == 'symbionName' then
-        uiElements.symbionLabel:setText(payload)
-      end
-    end
-  )
-
   endGame = Luvent.newEvent()
   endGame:addAction(function(winOrLose)
     if winOrLose == 'win' then
@@ -241,6 +196,7 @@ screen.render = function()
   love.graphics.setColor(Colors.pureWhite)
   love.graphics.print('@', 4+(player.x-(topLeftX))*tilewidth, (player.y-(topLeftY))*tileheight, 0, 1.5)
 
+
   --render targeting mode
   if targetingMode then
     local image = tiles[targeting.tileset].image
@@ -301,7 +257,17 @@ screen.render = function()
   if player.numMoves < 25 then
     love.graphics.printf('press ? for help', 0, 4, love.graphics.getWidth()/2-4, 'right')
   end
-
+  for i=0, player.maxHp-1 do 
+    local image = tiles["Interface"].image
+    local fullQuad = tiles["Interface"].tiles[63]
+    local emptyQuad = tiles["Interface"].tiles[64]
+    love.graphics.setColor(Colors.red)
+    if i < player.hp then
+      love.graphics.draw(image,fullQuad,i*16+6,0)
+    else
+      love.graphics.draw(image,emptyQuad,i*16+6,0)
+    end
+  end
 love.graphics.setCanvas()
 
   function getHealthColor(hp, maxHp)
@@ -365,13 +331,11 @@ screen.keypressed = function(key)
   if lume.any({'1','2','3','4','5'}, function(x) return key == x end) then
     if not player.attachedSymbion then
       if player.symbions[tonumber(key)] and player.symbions[tonumber(key)]:apply(player) then
-        updateUi:trigger('symbionName', player.attachedSymbion.name)
-        updateUi:trigger('symbionGui', 'show')
+        -- ?
       end
     else
       local attached = lume.find(player.symbions, player.attachedSymbion)
       player.symbions[attached]:remove(player)
-      updateUi:trigger('symbionGui', 'hide')
     end
   end
 
@@ -380,26 +344,25 @@ screen.keypressed = function(key)
     if player.attachedSymbion then
       local attached = lume.find(player.symbions, player.attachedSymbion)
       player.symbions[attached]:remove(player)
-      updateUi:trigger('symbionGui', 'hide')
     end
     if targetingMode then
       targetingMode = false
     end 
-  elseif key=='up' or key=='k' then
+  elseif key=='up' or key=='k' or key=='kp8' then
     move(0,-1)
-  elseif key=='down' or key=='j' then
+  elseif key=='down' or key=='j' or key=='kp2' then
     move(0,1)
-  elseif key=='left' or key =='h' then
+  elseif key=='left' or key =='h' or key=='kp4' then
     move(-1,0)
-  elseif key=='right' or key== 'l' then
+  elseif key=='right' or key== 'l' or key=='kp6' then
     move(1,0)
-  elseif key=='b' then
+  elseif key=='b' or key=='kp1' then
     move(-1,1)
-  elseif key=='n' then
+  elseif key=='n' or key=='kp3' then
     move(1,1)
-  elseif key=='y' then
+  elseif key=='y' or key=='kp7' then
     move(-1,-1)
-  elseif key=='u' then
+  elseif key=='u' or key=='kp9' then
     move(1,-1)
   elseif key=='.' and (love.keyboard.isDown("rshift") or love.keyboard.isDown("lshift")) then
     downstairs = gameWorld:getCurrentLevel().downstairs
@@ -413,7 +376,7 @@ screen.keypressed = function(key)
       gameWorld:goUpLevel()
       refresh()
     end
-  elseif key == '.' then
+  elseif key == '.' or key=='kp5' then
     engine:unlock()
   elseif key=='/'and  (love.keyboard.isDown("rshift") or love.keyboard.isDown("lshift")) then
     --helptext
@@ -617,8 +580,6 @@ press x to drop
         end
         if not player.attachedSymbion then
           if player.symbions[selectedItem + 1] and player.symbions[selectedItem + 1]:apply(player) then
-            updateUi:trigger('symbionName', player.attachedSymbion.name)
-            updateUi:trigger('symbionGui', 'show')
             subscreen = nil
           end
         end

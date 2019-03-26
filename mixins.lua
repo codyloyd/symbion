@@ -34,7 +34,7 @@ Mixins.Destructible = {
 }
 
 function Mixins.Destructible:init(opts)
-  self.maxHp = opts and opts.maxHp or 10
+  self.maxHp = opts and opts.maxHp or 1
   self.hp = opts and opts.hp or self.maxHp
   self.defenseValue = opts and opts.defenseValue or 0
   self.healthRegenRate = opts and opts.healthRegenRate or 0 
@@ -42,7 +42,6 @@ end
 
 function Mixins.Destructible:updateHealth()
   self.hp = math.min(self.maxHp, self.hp + self.healthRegenRate)
-  updateUi:trigger('healthBar', self.hp/self.maxHp)
 end
 
 function Mixins.Destructible:takeDamage(attacker, damage)
@@ -51,7 +50,6 @@ function Mixins.Destructible:takeDamage(attacker, damage)
   if self == player then
     startShake(.15,1)
     flashScreen(.04)
-    updateUi:trigger('healthBar', self.hp/self.maxHp)
   end
   if self.hp <= 0 then
     if self == player then
